@@ -1,0 +1,212 @@
+-- Abilita il supporto alle chiavi esterne (fondamentale in SQLite)
+PRAGMA foreign_keys = ON;
+
+-- Pulizia iniziale (esegue il drop in ordine inverso per i vincoli)
+DROP TABLE IF EXISTS POSIZIONE_LIVE_CAMION;
+DROP TABLE IF EXISTS RITIRO_INGOMBRANTI;
+DROP TABLE IF EXISTS NOTIFICHE;
+DROP TABLE IF EXISTS SEGNALAZIONI;
+DROP TABLE IF EXISTS CALENDARI;
+DROP TABLE IF EXISTS ISOLE_ECOLOGICHE;
+DROP TABLE IF EXISTS UTENTI;
+DROP TABLE IF EXISTS VIE;
+DROP TABLE IF EXISTS QUARTIERI;
+
+-- 1. Tabella QUARTIERI
+CREATE TABLE QUARTIERI (
+    ID_Quartiere INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nome TEXT NOT NULL UNIQUE,
+    Confini_Geo TEXT -- SQLite non ha POLYGON, usiamo TEXT per le coordinate
+);
+
+-- 2. Tabella VIE
+CREATE TABLE VIE (
+    ID_Via INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nome_Via TEXT NOT NULL,
+    ID_Quartiere INTEGER,
+    FOREIGN KEY (ID_Quartiere) REFERENCES QUARTIERI(ID_Quartiere) 
+    ON DELETE RESTRICT
+);
+
+-- 3. Tabella UTENTI
+CREATE TABLE UTENTI (
+    ID_Utente INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nome TEXT NOT NULL,
+    Cognome TEXT NOT NULL,
+    Email TEXT NOT NULL UNIQUE,
+    Password_Hash TEXT NOT NULL,
+    Codice_Fiscale TEXT NOT NULL UNIQUE,
+    -- SQLite non ha ENUM, si usa CHECK
+    Ruolo TEXT CHECK(Ruolo IN ('Cittadino', 'Operatore', 'Admin')) DEFAULT 'Cittadino',
+    ID_Via INTEGER,
+    Lingua TEXT DEFAULT 'IT',
+    FOREIGN KEY (ID_Via) REFERENCES VIE(ID_Via) 
+    ON DELETE SET NULL
+);
+
+-- 4. Tabella ISOLE_ECOLOGICHE
+CREATE TABLE ISOLE_ECOLOGICHE (
+    ID_Isola INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_Via INTEGER,
+    Latitudine REAL NOT NULL,
+    Longitudine REAL NOT NULL,
+    Livello_Riempimento INTEGER CHECK (Livello_Riempimento BETWEEN 0 AND 100),
+    Stato_Servizio TEXT CHECK(Stato_Servizio IN ('Attiva', 'Guasta', 'Piena')) DEFAULT 'Attiva',
+    Data_Ultimo_Svuotamento TEXT, -- SQLite usa TEXT per le date (ISO8601)
+    FOREIGN KEY (ID_Via) REFERENCES VIE(ID_Via) 
+    ON DELETE RESTRICT
+);
+
+-- 5. Tabella CALENDARI
+CREATE TABLE CALENDARI (
+    ID_Calendario INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_Via INTEGER,
+    Giorno_Settimana TEXT CHECK(Giorno_Settimana IN ('Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica')),
+    Tipo_Rifiuto TEXT,
+    Orario_Inizio TEXT, -- Formato HH:MM
+    Orario_Fine TEXT,
+    FOREIGN KEY (ID_Via) REFERENCES VIE(ID_Via) 
+    ON DELETE CASCADE
+);
+
+-- 6. Tabella SEGNALAZIONI
+CREATE TABLE SEGNALAZIONI (
+    ID_Segnalazione INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_Utente INTEGER,
+    Tipo TEXT CHECK(Tipo IN ('Abbandono', 'Isola_Guasta', 'Ritardo_Camion', 'Altro')),
+    Descrizione TEXT,
+    Latitudine REAL,
+    Longitudine REAL,
+    Foto_URL TEXT,
+    Stato TEXT CHECK(Stato IN ('Aperta', 'In_Lavorazione', 'Chiusa')) DEFAULT 'Aperta',
+    Data_Creazione TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_Utente) REFERENCES UTENTI(ID_Utente) 
+    ON DELETE SET NULL
+);
+
+-- 7. Tabella NOTIFICHE
+CREATE TABLE NOTIFICHE (
+    ID_Notifica INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_Utente INTEGER,
+    ID_Segnalazione_Rif INTEGER,
+    Titolo TEXT,
+    Messaggio TEXT,
+    Letta BOOLEAN DEFAULT 0, -- 0 = False, 1 = True
+    Data_Invio TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_Utente) REFERENCES UTENTI(ID_Utente) 
+    ON DELETE CASCADE,
+    FOREIGN KEY (ID_Segnalazione_Rif) REFERENCES SEGNALAZIONI(ID_Segnalazione) 
+    ON DELETE CASCADE
+);
+
+-- 8. Tabella RITIRO_INGOMBRANTI
+CREATE TABLE RITIRO_INGOMBRANTI (
+    ID_Ritiro INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_Utente INTEGER,
+    ID_Via INTEGER,
+    Descrizione_Oggetti TEXT,
+    Data_Richiesta TEXT,
+    Data_Appuntamento TEXT,
+    Stato TEXT CHECK(Stato IN ('In_Attesa', 'Confermato', 'Ritirato', 'Annullato')) DEFAULT 'In_Attesa',
+    FOREIGN KEY (ID_Utente) REFERENCES UTENTI(ID_Utente) 
+    ON DELETE RESTRICT,
+    FOREIGN KEY (ID_Via) REFERENCES VIE(ID_Via) 
+    ON DELETE RESTRICT
+);
+
+-- 9. Tabella POSIZIONE_LIVE_CAMION
+CREATE TABLE POSIZIONE_LIVE_CAMION (
+    ID_Camion INTEGER PRIMARY KEY AUTOINCREMENT,
+    Targa TEXT UNIQUE,
+    ID_Quartiere_Attuale INTEGER,
+    Latitudine REAL,
+    Longitudine REAL,
+    Ultimo_Update TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_Quartiere_Attuale) REFERENCES QUARTIERI(ID_Quartiere) 
+    ON DELETE SET NULL
+);
+
+
+
+-- Abilita controllo vincoli (Fondamentale su SQLite)
+PRAGMA foreign_keys = ON;
+
+-- ==========================================
+-- 1. POPOLAMENTO TERRITORIO (Quartieri e Vie)
+-- ==========================================
+
+-- Inseriamo 3 quartieri tipici di Trento
+INSERT INTO QUARTIERI (Nome, Confini_Geo) VALUES 
+('Povo', '[[46.06, 11.12], [46.07, 11.13]]'),
+('Centro Storico', '[[46.06, 11.11], [46.07, 11.12]]'),
+('Mattarello', '[[46.03, 11.12], [46.04, 11.13]]');
+
+-- Inseriamo le Vie collegate ai quartieri
+-- ID 1 = Povo, ID 2 = Centro, ID 3 = Mattarello
+INSERT INTO VIE (Nome_Via, ID_Quartiere) VALUES 
+('Via Sommarive', 1),       -- Università (Povo)
+('Via della Saluga', 1),    -- Povo
+('Via Belenzani', 2),       -- Centro
+('Piazza Duomo', 2),        -- Centro
+('Via della Torre', 3);     -- Mattarello
+
+-- ==========================================
+-- 2. POPOLAMENTO UTENTI (Cittadini e Operatori)
+-- ==========================================
+
+INSERT INTO UTENTI (Nome, Cognome, Email, Password_Hash, Codice_Fiscale, Ruolo, ID_Via, Lingua) VALUES 
+-- Cittadino residente a Povo (ID Via 1)
+('Mario', 'Rossi', 'mario.rossi@email.it', 'hash_pwd_1', 'RSSMRA80A01L378X', 'Cittadino', 1, 'IT'),
+-- Cittadina residente in Centro (ID Via 3)
+('Giulia', 'Bianchi', 'giulia.b@email.it', 'hash_pwd_2', 'BNCGLI90B42L378Y', 'Cittadino', 3, 'EN'),
+-- Operatore Ecologico (Non serve necessariamente la via di residenza per lavoro, ma la mettiamo)
+('Luigi', 'Verdi', 'luigi.op@ecotrento.it', 'hash_pwd_3', 'VRDLGI75C03L378Z', 'Operatore', 5, 'IT'),
+-- Admin del sistema
+('Admin', 'System', 'admin@ecotrento.it', 'hash_pwd_secure', 'ADMSYS00A00A000A', 'Admin', NULL, 'IT');
+
+-- ==========================================
+-- 3. ISOLE ECOLOGICHE E CAMION
+-- ==========================================
+
+INSERT INTO ISOLE_ECOLOGICHE (ID_Via, Latitudine, Longitudine, Livello_Riempimento, Stato_Servizio, Data_Ultimo_Svuotamento) VALUES 
+(1, 46.066422, 11.149633, 85, 'Attiva', '2023-10-25 08:00:00'), -- Povo (Quasi piena)
+(3, 46.067422, 11.121633, 20, 'Guasta', '2023-10-24 10:00:00'), -- Centro (Rotta)
+(5, 46.030000, 11.130000, 0, 'Attiva', '2023-10-26 07:30:00');  -- Mattarello (Vuota)
+
+INSERT INTO POSIZIONE_LIVE_CAMION (Targa, ID_Quartiere_Attuale, Latitudine, Longitudine) VALUES 
+('TN123AB', 1, 46.066500, 11.150000), -- Camion attivo a Povo
+('TN987XY', 2, 46.068000, 11.122000); -- Camion attivo in Centro
+
+-- ==========================================
+-- 4. CALENDARI (Esempio per Via Sommarive - Povo)
+-- ==========================================
+
+INSERT INTO CALENDARI (ID_Via, Giorno_Settimana, Tipo_Rifiuto, Orario_Inizio, Orario_Fine) VALUES 
+(1, 'Lunedì', 'Organico', '06:00', '08:00'),
+(1, 'Mercoledì', 'Carta', '06:00', '08:00'),
+(1, 'Venerdì', 'Imballaggi Leggeri', '06:00', '08:00');
+
+-- ==========================================
+-- 5. SEGNALAZIONI E RITIRI (Interazioni Utente)
+-- ==========================================
+
+-- Mario (ID 1) segnala che l'isola di Povo è guasta
+INSERT INTO SEGNALAZIONI (ID_Utente, Tipo, Descrizione, Latitudine, Longitudine, Stato) VALUES 
+(1, 'Isola_Guasta', 'Il pedale del bidone organico è rotto', 46.066422, 11.149633, 'Aperta');
+
+-- Giulia (ID 2) segnala rifiuti abbandonati in centro
+INSERT INTO SEGNALAZIONI (ID_Utente, Tipo, Descrizione, Latitudine, Longitudine, Stato) VALUES 
+(2, 'Abbandono', 'Sacchi neri lasciati sul marciapiede', 46.067500, 11.121700, 'In_Lavorazione');
+
+-- Mario prenota un ritiro ingombranti (Divano)
+INSERT INTO RITIRO_INGOMBRANTI (ID_Utente, ID_Via, Descrizione_Oggetti, Data_Richiesta, Data_Appuntamento, Stato) VALUES 
+(1, 1, 'Divano a 3 posti vecchio', '2023-10-26', '2023-11-02', 'Confermato');
+
+-- ==========================================
+-- 6. NOTIFICHE
+-- ==========================================
+
+INSERT INTO NOTIFICHE (ID_Utente, ID_Segnalazione_Rif, Titolo, Messaggio, Letta) VALUES 
+(1, 1, 'Segnalazione Ricevuta', 'Grazie Mario, abbiamo preso in carico la tua segnalazione sul guasto.', 0),
+(1, NULL, 'Promemoria Ritiro', 'Ricordati che domani passiamo a prendere il divano.', 0),
+(2, 2, 'Aggiornamento Segnalazione', 'Un operatore sta intervenendo per rimuovere i rifiuti abbandonati.', 1);
