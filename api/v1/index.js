@@ -31,9 +31,9 @@ app.use('/api/v2/strade', stradeRoutes);
 //singole dichiarazioni
 app.use('/api/v2/isole', isoleRoutes);
 app.use('/api/v2/segnalazioni', segnalazioniRoutes);
-app.use('/api/v2/ingombranti', ingombrantiRoutes);
 
 // solo utenti
+app.use('/api/v2/ingombranti', utentiAuth, ingombrantiRoutes);
 app.use('/api/v2/notifiche', utentiAuth, notificheRoutes);
 app.use('/api/v2/utenti', utentiAuth, utentiRoutes);
  

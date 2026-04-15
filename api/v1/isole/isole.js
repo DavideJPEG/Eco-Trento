@@ -14,6 +14,7 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
 // richiesta get per ottenere tutte le isole
 router.get('/', async (req, res) => {
+    // ritorno delle isole mappate
     let isole = await Isole.find({});
     isole = isole.map((isole) => {
         return {
@@ -45,6 +46,7 @@ router.get('/:id', async (req, res) => {
     });
 });
 
+// rimuovere isola
 router.delete('/:id', async (req, res) => {
     let isola = req['isola'];
     await Isole.deleteOne({ _id: req.params.id });
@@ -52,7 +54,8 @@ router.delete('/:id', async (req, res) => {
     res.status(204).send();
 });
 
-router.post('', async (req, res) => {
+//inserire nuova isola (aggiungere parametri)
+router.post('/', async (req, res) => {
 
     let isola = new Isole({
         //informazioni isola
