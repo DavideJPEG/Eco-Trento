@@ -88,7 +88,7 @@ router.post('/', async (req, res) => {
 
     richiesta = await richiesta.save();
 
-    let richiestaID = richiesta._id;
+    let richiestaID = richiesta.id;
 
     console.log('richiesta inserita');
     // link alla nuova richiesta creata
