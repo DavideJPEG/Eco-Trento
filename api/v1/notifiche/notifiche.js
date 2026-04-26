@@ -20,7 +20,6 @@ router.post('/', async (req, res) => {
         titolo: req.body.titolo,
         messaggio: req.body.messaggio,
         link: req.body.link,
-        riferimento: req.body.riferimento,
         letta: false
     });
 

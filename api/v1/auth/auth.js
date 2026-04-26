@@ -9,7 +9,7 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
 /*
     - (post) 2 modi per login con email e password oppute google account
-    
+    - (get) richiesta per controllare utente precedentemente loggato
 */
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;

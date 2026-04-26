@@ -22,8 +22,10 @@ router.get('/', async (req, res) => {
     }
 
     if (req.query.stato === 'attive') {
-        filtro.statoOperatore = 'accettata';
-        filtro.statoUtente = 'accettata';
+        filtro.$or = [
+            { statoOperatore: 'accettata' },
+            { statoUtente: 'accettata' }
+        ];
     } else if (req.query.stato === 'soddisfatte') {
         filtro.statoOperatore = 'soddisfatta';
         filtro.statoUtente = 'soddisfatta'
@@ -39,7 +41,8 @@ router.get('/', async (req, res) => {
     richieste = richieste.map((richiesta) => {
         return {
             self: '/api/v1/ingombranti/' + richiesta.id,
-            title: richiesta.nome
+            title: richiesta.nome,
+            dataRichiesta: richiesta.dataRichiesta
         };
     });
 
@@ -82,8 +85,15 @@ router.delete('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
 
     let richiesta = new Ingombranti({
-        //informazioni
-        nome: req.body.nome
+        nome: req.body.nome,
+        utente: req.body.utenteID,
+        dataRichiesta: req.body.dataRichiesta,
+        dataRitiro: req.body.dataRitiro,
+        orario: req.body.orario,
+        descrizione: req.body.descrizione,
+        foto: req.body.foto,   // controllare con GridFS
+        statoOperatore: req.body.statoOperatore,
+        statoUtente: req.body.statoUtente
     });
 
     richiesta = await richiesta.save();
@@ -153,9 +163,9 @@ router.patch('/:id/modificaOperatore', operatoriAuth, async (req, res) => {
 
     richiesta.statoOperatore = 'accettata';
     richiesta.statoUtente = 'pending';
-    richiesta.data = req.body.data;
+    richiesta.dataRitiro = req.body.dataRitiro;
     richiesta.orario = req.body.orario;
-    richiesta.messaggio = req.body.messaggio;
+    richiesta.descrizione = req.body.descrizione;
     await richiesta.save();
 
     await Notifiche.create({
@@ -173,9 +183,9 @@ router.patch('/:id/modificaUtente', async (req, res) => {
 
     richiesta.statoOperatore = 'pending';
     richiesta.statoUtente = 'accettata';
-    richiesta.data = req.body.data;
+    richiesta.dataRitiro = req.body.dataRitiro;
     richiesta.orario = req.body.orario;
-    richiesta.messaggio = req.body.messaggio;
+    richiesta.descrizione = req.body.descrizione;
     await richiesta.save();
 
     await Notifiche.create({

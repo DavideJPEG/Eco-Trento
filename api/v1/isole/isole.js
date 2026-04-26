@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     isole = isole.map((isole) => {
         return {
             self: '/api/v1/isole/' + isole.id,
-            title: isole.nome
+            nome: isole.nome
         };
     });
     res.status(200).json(isole);
@@ -59,7 +59,11 @@ router.post('/', async (req, res) => {
 
     let isola = new Isole({
         //informazioni isola
-        nome: req.body.nome
+        nome: req.body.nome,
+        coordinate: req.body.coordinate,
+        via: req.body.via,
+        statoRifiuti: req.body.statoRifiuti,
+        statoFisico: req.body.statoFisico
     });
 
     isola = await isola.save();
@@ -91,10 +95,5 @@ router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     });
 });
 
-
-/*
-router.get('/', (req, res) => res.status(200).json({ message: 'GET isole ok' }));
-router.post('/', (req, res) => res.status(201).json({ message: 'POST isole ok' }));
-*/
 
 export default router
