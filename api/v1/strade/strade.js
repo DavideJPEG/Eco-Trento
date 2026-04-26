@@ -6,6 +6,13 @@ const router = express.Router();
 import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
 import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
+/*
+    - (get) richiesta per tutte le strade
+    - (get) richiesta per info in base all'id
+    - (get) richiesta per la ricerca di una strada
+    - (get) richiesta per calendario in base alla strada e quartiere
+*/
+
 // ritorna tutte le strade
 router.get('/', async (req, res) => {
     // ritorno delle strade mappate
