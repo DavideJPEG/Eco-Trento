@@ -16,7 +16,7 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 router.get('/', async (req, res) => {
     // ritorno delle isole mappate
     let isole = await Isole.find({});
-    isole = isole.map((isole) => {
+    isole = isole.map((isola) => {
         return {
             self: '/api/v1/isole/' + isole.id,
             nome: isole.nome
@@ -47,7 +47,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // rimuovere isola
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
     await Isole.deleteOne({ _id: req.params.id });
     console.log('isola rimossa');
@@ -55,7 +55,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 //inserire nuova isola (aggiungere parametri)
-router.post('/', async (req, res) => {
+router.post('/', utentiAuth, operatoriAuth, async (req, res) => {
 
     let isola = new Isole({
         //informazioni isola
@@ -80,7 +80,7 @@ router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
 
     // prendi solo i campi inviati nel body (da aggiungere)
-    const campiModificabili = [];
+    const campiModificabili = ['nome', 'coordinate', 'via', 'statoRifiuti', 'statoFisico'];
 
     campiModificabili.forEach(campo => {
         if (req.body[campo] !== undefined) {

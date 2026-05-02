@@ -67,6 +67,10 @@ router.use('/:id', async (req, res, next) => {
         console.log('notifica non trovata');
         return;
     }
+    // controlla che la notifica appartenga all'utente loggato
+    if (notifica.utente.toString() !== req.loggedUser.id) {
+        return res.status(403).json({ message: 'Accesso non autorizzato' });
+    }
     req['notifica'] = notifica;
     next();
 });

@@ -8,43 +8,21 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
 /*
     - (get) richiesta per tutte le strade
-    - (get) richiesta per info in base all'id
     - (get) richiesta per la ricerca di una strada
+    - (get) richiesta per info in base all'id
     - (get) richiesta per calendario in base alla strada e quartiere
 */
 
 // ritorna tutte le strade
 router.get('/', async (req, res) => {
-    // ritorno delle strade mappate
     let strade = await Strade.find({});
-    strade = strade.map((isole) => {
+    strade = strade.map((strada) => {
         return {
-            self: '/api/v1/strade/' + strade.id,
-            title: strade.nome
+            self: '/api/v1/strade/' + strada.id,
+            title: strada.nome
         };
     });
     res.status(200).json(strade);
-});
-
-// intercetta chiamate con id
-router.use('/:id', async (req, res, next) => {
-    let strada = await Strade.findById(req.params.id).exec();
-    if (!strada) {
-        res.status(404).send()
-        console.log('strada non trovata')
-        return;
-    }
-    req['strada'] = strada;
-    next();
-});
-
-// ritorna info sulla strada
-router.get('/:id', async (req, res) => {
-    let strada = req['strada'];
-    res.status(200).json({
-        self: '/api/v1/strade/' + strada.id,
-        ...strada.toObject()
-    });
 });
 
 // usato per la ricerca testuale di una strada (ricordare che le strade sono tutte lowerCase)
@@ -71,6 +49,28 @@ router.get('/ricerca', async (req, res) => {
 
     res.status(200).json(strade);
 });
+
+// intercetta chiamate con id
+router.use('/:id', async (req, res, next) => {
+    let strada = await Strade.findById(req.params.id).exec();
+    if (!strada) {
+        res.status(404).send()
+        console.log('strada non trovata')
+        return;
+    }
+    req['strada'] = strada;
+    next();
+});
+
+// ritorna info sulla strada
+router.get('/:id', async (req, res) => {
+    let strada = req['strada'];
+    res.status(200).json({
+        self: '/api/v1/strade/' + strada.id,
+        ...strada.toObject()
+    });
+});
+
 
 // restituisce il calendario una strada selezionata con :id
 router.get('/:id/infoCalendario', async (req, res) => {
