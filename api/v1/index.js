@@ -23,19 +23,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// pubbliche
+//singole dichiarazioni
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/area', areaRoutes);
 app.use('/api/v1/strade', stradeRoutes);
-
-//singole dichiarazioni
 app.use('/api/v1/isole', isoleRoutes);
+app.use('/api/v1/utenti', utentiRoutes);
 
 // utenti/operatori
 app.use('/api/v1/segnalazioni', utentiAuth, segnalazioniRoutes);
 app.use('/api/v1/ingombranti', utentiAuth, ingombrantiRoutes);
 app.use('/api/v1/notifiche', utentiAuth, notificheRoutes);
-app.use('/api/v1/utenti', utentiAuth, utentiRoutes);
  
 // solo operatori
 app.use('/api/v1/operatori', utentiAuth, operatoriAuth, operatoriRoutes);
