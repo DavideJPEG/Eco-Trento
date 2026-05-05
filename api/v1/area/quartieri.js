@@ -10,12 +10,11 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
     - (get) richiesta per tutti i quartieri
     - (get) richiesta per un solo quartiere in base all'id
     - (get) richiesta per il calendario di un determinato quartiere
-    - (patch) modifica un quartiere
     - (delete) elimina un quartiere
 */
 
 // ritorna tutti i quartieri
-router.get('/', utentiAuth, operatoriAuth, async (req, res) => {
+router.get('/', async (req, res) => {
     let quartieri = await Quartieri.find({});
 
     quartieri = quartieri.map((quartiere) => {
@@ -23,9 +22,7 @@ router.get('/', utentiAuth, operatoriAuth, async (req, res) => {
             self: '/api/v1/quartieri/' + quartiere.id,
             nome: quartiere.nome,
             confini: quartiere.confini,
-            centro: quartiere.centro,
-            coloreBordo: quartiere.coloreBordo,
-            coloreRiempimento: quartiere.coloreRiempimento,
+            stileMappa: quartiere.stileMappa,
             calendario: '/api/v1/quartieri/' + quartiere.id + '/calendario'
         };
     });
@@ -34,15 +31,13 @@ router.get('/', utentiAuth, operatoriAuth, async (req, res) => {
 });
 
 // inserire un nuovo quartiere
-router.post('/', async (req, res) => {
+router.post('/', utentiAuth, operatoriAuth, async (req, res) => {
 
     let quartiere = new Quartieri({
         nome: req.body.nome,
         confini: req.body.confini,
-        centro: req.body.centro,
-        coloreBordo: req.body.coloreBordo,
-        coloreRiempimento: req.body.coloreRiempimento,
-        attivo: true
+        stileMappa: req.body.stileMappa,
+        calendario: req.body.calendario
     });
 
     quartiere = await quartiere.save();
@@ -52,11 +47,6 @@ router.post('/', async (req, res) => {
     console.log('quartiere inserito');
     res.location('/api/v1/quartieri/' + quartiereID).status(201).send();
 });
-
-
-
-
-
 
 // intercetta richieste con un id per controllare se esiste
 router.use('/:id', async (req, res, next) => {
@@ -82,49 +72,25 @@ router.get('/:id', async (req, res) => {
     });
 });
 
-
-
 // ritorna il calendario del quartiere
 router.get('/:id/calendario', async (req, res) => {
     let quartiere = req['quartiere'];
 
-    let calendario = await Calendari.findOne({ quartiere: quartiere._id }).exec();
+    let calendario = await Calendari.findById(quartiere.calendario).select('link').exec();
 
     if (!calendario) {
-        res.status(404).send();
-        console.log('calendario quartiere non trovato');
+        res.status(404).json({ success: false, message: 'Calendario non trovato' });
         return;
     }
 
     res.status(200).json({
-        self: '/api/v1/quartieri/' + quartiere.id + '/calendario',
-        ...calendario.toObject()
+        self: '/api/v1/quartieri/' + quartiere._id + '/calendario',
+        link: calendario.link
     });
 });
-
-// modifica quartiere
-router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
-    let quartiere = req['quartiere'];
-
-    if (req.body.nome !== undefined) quartiere.nome = req.body.nome;
-    if (req.body.confini !== undefined) quartiere.confini = req.body.confini;
-    if (req.body.centro !== undefined) quartiere.centro = req.body.centro;
-    if (req.body.coloreBordo !== undefined) quartiere.coloreBordo = req.body.coloreBordo;
-    if (req.body.coloreRiempimento !== undefined) quartiere.coloreRiempimento = req.body.coloreRiempimento;
-    if (req.body.attivo !== undefined) quartiere.attivo = req.body.attivo;
-
-    await quartiere.save();
-
-    res.status(200).json({
-        self: '/api/v1/quartieri/' + quartiere.id,
-        ...quartiere.toObject({ versionKey: false })
-    });
-});
-
-
 
 // rimuove quartiere
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let quartiere = req['quartiere'];
     await Quartieri.deleteOne({ _id: quartiere._id });
     console.log('quartiere rimosso');

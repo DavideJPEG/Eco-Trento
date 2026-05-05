@@ -5,16 +5,7 @@ const router = express.Router();
 import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
 import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
-/*
-    (get) richiesta per avere tutte le richieste di rifiuti in base al ruolo dell'utente
-    (get) richiesta per una singola richiesta in base all'id
-    (delete) rimuove una richiesta
-    (post) aggiunge una richiesta
-    (patch) richieste di modifica delle richieste. Differenziate da operatori e utenti normali
-*/
-
-
-// ritorna tutte le prenotazioni dei rifiuti ingombranti sia per opeatore (tutte) sia per utente (solo le sue)
+// ritorna tutte le richieste (operatore = tutte, utente = solo le sue)
 router.get('/', async (req, res) => {
     let filtro = {};
 
@@ -22,19 +13,8 @@ router.get('/', async (req, res) => {
         filtro.utente = req.loggedUser.id;
     }
 
-    if (req.query.stato === 'attive') {
-        filtro.$or = [
-            { statoOperatore: 'accettata' },
-            { statoUtente: 'accettata' }
-        ];
-    } else if (req.query.stato === 'soddisfatte') {
-        filtro.statoOperatore = 'soddisfatta';
-        filtro.statoUtente = 'soddisfatta'
-    } else if (req.query.stato === 'pending') {
-        filtro.$or = [
-            { statoOperatore: 'pending' },
-            { statoUtente: 'pending' }
-        ];
+    if (req.query.stato) {
+        filtro.stato = req.query.stato; // es. ?stato=In_Attesa
     }
 
     let richieste = await Ingombranti.find(filtro);
@@ -42,14 +22,14 @@ router.get('/', async (req, res) => {
     richieste = richieste.map((richiesta) => {
         return {
             self: '/api/v1/ingombranti/' + richiesta.id,
-            title: richiesta.nome,
-            dataRichiesta: richiesta.dataRichiesta
+            descrizioneOggetti: richiesta.descrizioneOggetti,
+            stato: richiesta.stato,
+            dataRitiroRichiesta: richiesta.dataRitiroRichiesta
         };
     });
 
     res.status(200).json(richieste);
 });
-
 
 // intercetta richieste con un id per controllare se esiste
 router.use('/:id', async (req, res, next) => {
@@ -58,7 +38,6 @@ router.use('/:id', async (req, res, next) => {
         res.status(404).send();
         return;
     }
-    // operatori vedono tutto, utenti solo le proprie richieste
     if (req.loggedUser.ruolo !== 'operatore' &&
         richiesta.utente.toString() !== req.loggedUser.id) {
         return res.status(403).json({ message: 'Accesso non autorizzato' });
@@ -67,139 +46,104 @@ router.use('/:id', async (req, res, next) => {
     next();
 });
 
-
-// ritorna info sull'ingombrante
+// ritorna info sulla richiesta
 router.get('/:id', async (req, res) => {
     let richiesta = req['richiesta'];
     res.status(200).json({
         self: '/api/v1/ingombranti/' + richiesta.id,
-        ...richiesta.toObject()
+        ...richiesta.toObject({ versionKey: false })
     });
 });
 
-
+// elimina richiesta
 router.delete('/:id', async (req, res) => {
     let richiesta = req['richiesta'];
     await Ingombranti.deleteOne({ _id: richiesta.id });
-    console.log('richiesta ingombranti rimossa');
     res.status(204).send();
 });
 
-
-//inserire nuova richiesta (aggiungere parametri)
+// inserisce nuova richiesta (solo utenti)
 router.post('/', async (req, res) => {
-
     let richiesta = new Ingombranti({
-        nome: req.body.nome,
-        utente: req.body.utenteID,
-        dataRichiesta: req.body.dataRichiesta,
-        dataRitiro: req.body.dataRitiro,
-        orario: req.body.orario,
-        descrizione: req.body.descrizione,
-        foto: req.body.foto,   // controllare con GridFS
-        statoOperatore: req.body.statoOperatore,
-        statoUtente: req.body.statoUtente
+        utente: req.loggedUser.id,         // preso dal token, non dal body
+        descrizioneOggetti: req.body.descrizioneOggetti,
+        dataRitiroRichiesta: req.body.dataRitiroRichiesta,
+        fasciaOraria: req.body.fasciaOraria,
+        stato: 'In_Attesa'                 // sempre In_Attesa alla creazione
     });
 
     richiesta = await richiesta.save();
 
-    let richiestaID = richiesta.id;
-
-    console.log('richiesta inserita');
-    // link alla nuova richiesta creata
-    res.location("/api/v1/ingombranti/" + richiestaID).status(201).send();
+    res.location('/api/v1/ingombranti/' + richiesta.id).status(201).send();
 });
 
-// utente accetta la modifica
-router.patch('/:id/accettataUtente', async (req, res) => {
+// operatore accetta la richiesta
+router.patch('/:id/accetta', operatoriAuth, async (req, res) => {
+    let richiesta = req['richiesta'];
+
+    richiesta.stato = 'Accettata';
+    await richiesta.save();
+
+    await Notifiche.create({
+        // creazione della notifica
+    });
+
+    res.status(200).json({
+        self: '/api/v1/ingombranti/' + richiesta.id,
+        ...richiesta.toObject({ versionKey: false })
+    });
+});
+
+// operatore propone una modifica (data/orario/note diversi)
+router.patch('/:id/proponiModifica', operatoriAuth, async (req, res) => {
+    let richiesta = req['richiesta'];
+
+    richiesta.stato = 'Modifica_Proposta';
+    if (req.body.dataRitiroRichiesta) richiesta.dataRitiroRichiesta = req.body.dataRitiroRichiesta;
+    if (req.body.fasciaOraria) richiesta.fasciaOraria = req.body.fasciaOraria;
+    if (req.body.noteOperatore) richiesta.noteOperatore = req.body.noteOperatore;
+    await richiesta.save();
+
+    await Notifiche.create({
+        // creazione della notifica
+    });
+
+    res.status(200).json({
+        self: '/api/v1/ingombranti/' + richiesta.id,
+        ...richiesta.toObject({ versionKey: false })
+    });
+});
+
+// utente accetta la modifica proposta dall'operatore
+router.patch('/:id/accettaModifica', async (req, res) => {
     let richiesta = req['richiesta'];
 
     if (richiesta.utente.toString() !== req.loggedUser.id) {
         return res.status(403).send();
     }
-    
-    richiesta.statoUtente = 'accettata';
-    await richiesta.save();
 
-    res.status(200).json({
-        self: '/api/v1/ingombranti/' + richiesta.id,
-        ...richiesta.toObject({ versionKey: false })
-    });
-});
-
-// operatore accetta la modifica
-router.patch('/:id/accettataOperatore', operatoriAuth, async (req, res) => {
-    let richiesta = req['richiesta'];
-
-    richiesta.statoOperatore = 'accettata';
-    await richiesta.save();
-
-    await Notifiche.create({
-        //creazione della notifica
-    });
-
-    res.status(200).json({
-        self: '/api/v1/ingombranti/' + richiesta.id,
-        ...richiesta.toObject({ versionKey: false })
-    });
-});
-
-// operatore imposta la richiesta come soddisfatta
-router.patch('/:id/soddisfatta', operatoriAuth, async (req, res) => {
-    let richiesta = req['richiesta'];
-
-    richiesta.statoOperatore = 'soddisfatta';
-    richiesta.statoUtente = 'soddisfatta';
-    await richiesta.save();
-
-    await Notifiche.create({
-        //creazione della notifica
-    });
-
-    res.status(200).json({
-        self: '/api/v1/ingombranti/' + richiesta.id,
-        ...richiesta.toObject({ versionKey: false })
-    });
-});
-
-// operatore modifica la richiesta
-router.patch('/:id/modificaOperatore', operatoriAuth, async (req, res) => {
-    let richiesta = req['richiesta'];
-
-    richiesta.statoOperatore = 'accettata';
-    richiesta.statoUtente = 'pending';
-    richiesta.dataRitiro = req.body.dataRitiro;
-    richiesta.orario = req.body.orario;
-    richiesta.descrizione = req.body.descrizione;
-    await richiesta.save();
-
-    await Notifiche.create({
-        //creazione della notifica
-    });
-
-    res.status(200).json({
-        self: '/api/v1/ingombranti/' + richiesta.id,
-        ...richiesta.toObject({ versionKey: false })
-    });
-});
-
-// l'utente modifica la richiesta
-router.patch('/:id/modificaUtente', async (req, res) => {
-    let richiesta = req['richiesta'];
-
-    if (richiesta.utente.toString() !== req.loggedUser.id) {
-        return res.status(403).send();
+    if (richiesta.stato !== 'Modifica_Proposta') {
+        return res.status(400).json({ message: 'Nessuna modifica da accettare' });
     }
-    
-    richiesta.statoOperatore = 'pending';
-    richiesta.statoUtente = 'accettata';
-    richiesta.dataRitiro = req.body.dataRitiro;
-    richiesta.orario = req.body.orario;
-    richiesta.descrizione = req.body.descrizione;
+
+    richiesta.stato = 'Accettata';
+    await richiesta.save();
+
+    res.status(200).json({
+        self: '/api/v1/ingombranti/' + richiesta.id,
+        ...richiesta.toObject({ versionKey: false })
+    });
+});
+
+// operatore imposta la richiesta come completata
+router.patch('/:id/completa', operatoriAuth, async (req, res) => {
+    let richiesta = req['richiesta'];
+
+    richiesta.stato = 'Completata';
     await richiesta.save();
 
     await Notifiche.create({
-        //creazione della notifica
+        // creazione della notifica
     });
 
     res.status(200).json({
@@ -208,5 +152,17 @@ router.patch('/:id/modificaUtente', async (req, res) => {
     });
 });
 
+// utente o operatore annulla la richiesta
+router.patch('/:id/annulla', async (req, res) => {
+    let richiesta = req['richiesta'];
 
-export default router
+    richiesta.stato = 'Annullata';
+    await richiesta.save();
+
+    res.status(200).json({
+        self: '/api/v1/ingombranti/' + richiesta.id,
+        ...richiesta.toObject({ versionKey: false })
+    });
+});
+
+export default router;

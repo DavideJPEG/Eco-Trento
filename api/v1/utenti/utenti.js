@@ -5,7 +5,7 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 
 router.post('/register', async (req, res) => {
 
-    const { email, password, nome, cognome } = req.body;
+    const { email, password, nome, cognome, quartiere } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({
@@ -31,6 +31,7 @@ router.post('/register', async (req, res) => {
         nome: nome || '',
         cognome: cognome || '',
         ruolo: 'utente',
+        notificheQuartiere : quartiere,
         notificheAttive: false
     });
 
@@ -66,6 +67,7 @@ router.get('/me', utentiAuth, async (req, res) => {
             nome: utente.nome,
             cognome: utente.cognome,
             ruolo: utente.ruolo,
+            notificheQuartiere: utente.notificheQuartiere,
             notificheAttive: utente.notificheAttive
         }
     });
@@ -101,6 +103,7 @@ router.patch('/me', utentiAuth, async (req, res) => {
             nome: utente.nome,
             cognome: utente.cognome,
             ruolo: utente.ruolo,
+            notificheQuartiere: utente.notificheQuartiere,
             notificheAttive: utente.notificheAttive
         }
     });

@@ -4,31 +4,10 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 //import Notifiche from './models/notifiche.js'; // get our mongoose model
 
 /*
-    - (post) inserisce una nuova notifica
     - (get) richiesta per avere tutte le notifiche dell'utente loggato
     - (get) richiesta per info di una notifica specifica
     - (patch) modifica di una notifica da non letta a letta
 */
-
-// crea nuova notifica
-router.post('/', async (req, res) => {
-
-    
-    let notifica = new Notifiche({
-        utente: req.body.utente,
-        tipo: req.body.tipo,
-        titolo: req.body.titolo,
-        messaggio: req.body.messaggio,
-        link: req.body.link,
-        letta: false
-    });
-
-    notifica = await notifica.save();
-
-    console.log('notifica inserita');
-    res.location('/api/v1/notifiche/' + notifica._id).status(201).send();
-});
-
 
 // ritorna tutte le notifiche dell'utente loggato
 router.get('/', utentiAuth, async (req, res) => {
@@ -84,7 +63,6 @@ router.get('/:id', async (req, res) => {
         ...notifica.toObject()
     });
 });
-
 
 // mette come letta la notifica
 router.patch('/:id/letta', async (req, res) => {
