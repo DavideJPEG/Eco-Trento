@@ -7,17 +7,10 @@ const quartiereSchema = new mongoose.Schema({
         unique: true, // Non ci possono essere due quartieri con lo stesso nome
         trim: true
     },
-    // Struttura GeoJSON per un Poligono (i confini del quartiere)
+    // VERSIONE SEMPLIFICATA: Array di coordinate (es. [[lat1, lng1], ...]
     confini: {
-        type: {
-            type: String,
-            enum: ['Polygon'], // Deve essere 'Polygon'
-            required: true
-        },
-        coordinates: {
-            type: [[[Number]]], // Un array di array di array di numeri (formato standard GeoJSON)
-            required: true
-        }
+        type: [[Number]], 
+        required: true
     },
     // Colori per il rendering sulla mappa Leaflet nel frontend
     stileMappa: {

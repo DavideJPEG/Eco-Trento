@@ -21,17 +21,9 @@ const isolaSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    // Struttura GeoJSON per un Punto singolo (il Pin sulla mappa)
-    posizione: {
-        type: {
-            type: String,
-            enum: ['Point'], // Deve essere 'Point'
-            required: true
-        },
-        coordinates: {
-            type: [Number], // Formato: [Longitudine, Latitudine] -> Attenzione all'ordine!
-            required: true
-        }
+   coordinate: { //versione semplice con solo un array al posto della versione con GeoJSON
+        type: [Number], // Formato: [Latitudine, Longitudine]
+        required: true
     },
     strada: {
         type: mongoose.Schema.Types.ObjectId,

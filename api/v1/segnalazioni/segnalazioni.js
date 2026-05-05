@@ -2,6 +2,7 @@ import express from 'express';
 import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
 const router = express.Router();
 //import Segnalazioni from './models/segnalazioni.js'; // get our mongoose model
+import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
     
 /*
     - (post) aggiunta di una nuova segnalazione
@@ -103,8 +104,14 @@ router.get('/:id', async (req, res) => {
 // rimuovere segnalazione
 router.delete('/:id', async (req, res) => {
     let segnalazione = req['segnalazione'];
+
+    // solo l'autore o un operatore può cancellare
+    if (req.loggedUser.ruolo !== 'operatore' &&
+        segnalazione.utente.toString() !== req.loggedUser.id) {
+        return res.status(403).send();
+    }
+
     await Segnalazioni.deleteOne({ _id: req.params.id });
-    console.log('segnalazione rimossa');
     res.status(204).send();
 });
 

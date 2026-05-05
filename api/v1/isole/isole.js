@@ -16,10 +16,10 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 router.get('/', async (req, res) => {
     // ritorno delle isole mappate
     let isole = await Isole.find({});
-    isole = isole.map((isole) => {
+    isole = isole.map((isola) => {
         return {
             self: '/api/v1/isole/' + isole.id,
-            title: isole.nome
+            nome: isole.nome
         };
     });
     res.status(200).json(isole);
@@ -47,7 +47,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // rimuovere isola
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
     await Isole.deleteOne({ _id: req.params.id });
     console.log('isola rimossa');
@@ -55,11 +55,15 @@ router.delete('/:id', async (req, res) => {
 });
 
 //inserire nuova isola (aggiungere parametri)
-router.post('/', async (req, res) => {
+router.post('/', utentiAuth, operatoriAuth, async (req, res) => {
 
     let isola = new Isole({
         //informazioni isola
-        nome: req.body.nome
+        nome: req.body.nome,
+        coordinate: req.body.coordinate,
+        via: req.body.via,
+        statoRifiuti: req.body.statoRifiuti,
+        statoFisico: req.body.statoFisico
     });
 
     isola = await isola.save();
@@ -76,7 +80,7 @@ router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
 
     // prendi solo i campi inviati nel body (da aggiungere)
-    const campiModificabili = [];
+    const campiModificabili = ['nome', 'coordinate', 'via', 'statoRifiuti', 'statoFisico'];
 
     campiModificabili.forEach(campo => {
         if (req.body[campo] !== undefined) {
@@ -91,10 +95,5 @@ router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     });
 });
 
-
-/*
-router.get('/', (req, res) => res.status(200).json({ message: 'GET isole ok' }));
-router.post('/', (req, res) => res.status(201).json({ message: 'POST isole ok' }));
-*/
 
 export default router

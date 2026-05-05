@@ -21,7 +21,7 @@ const ingombrantiSchema = new mongoose.Schema({
     },
     stato: {
         type: String,
-        // Logica semplificata: un solo stato chiaro per tutti
+        // Qui è modificata rispetto a come lo avevi pensato è c'è un solo stato univoco per operatore e utente
         enum: ['In_Attesa', 'Modifica_Proposta', 'Accettata', 'Completata','Annullata'],
         default: 'In_Attesa'
     },

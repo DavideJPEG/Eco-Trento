@@ -1,5 +1,7 @@
 import express from 'express';
 const router = express.Router();
+import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
+import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
 //import Quartieri from './models/quartieri.js'; // get our mongoose model
 //import Calendari from './models/calendari.js'; // get our mongoose model
 
@@ -11,6 +13,25 @@ const router = express.Router();
     - (patch) modifica un quartiere
     - (delete) elimina un quartiere
 */
+
+// ritorna tutti i quartieri
+router.get('/', utentiAuth, operatoriAuth, async (req, res) => {
+    let quartieri = await Quartieri.find({});
+
+    quartieri = quartieri.map((quartiere) => {
+        return {
+            self: '/api/v1/quartieri/' + quartiere.id,
+            nome: quartiere.nome,
+            confini: quartiere.confini,
+            centro: quartiere.centro,
+            coloreBordo: quartiere.coloreBordo,
+            coloreRiempimento: quartiere.coloreRiempimento,
+            calendario: '/api/v1/quartieri/' + quartiere.id + '/calendario'
+        };
+    });
+
+    res.status(200).json(quartieri);
+});
 
 // inserire un nuovo quartiere
 router.post('/', async (req, res) => {
@@ -34,24 +55,6 @@ router.post('/', async (req, res) => {
 
 
 
-// ritorna tutti i quartieri
-router.get('/', async (req, res) => {
-    let quartieri = await Quartieri.find({});
-
-    quartieri = quartieri.map((quartiere) => {
-        return {
-            self: '/api/v1/quartieri/' + quartiere.id,
-            nome: quartiere.nome,
-            confini: quartiere.confini,
-            centro: quartiere.centro,
-            coloreBordo: quartiere.coloreBordo,
-            coloreRiempimento: quartiere.coloreRiempimento,
-            calendario: '/api/v1/quartieri/' + quartiere.id + '/calendario'
-        };
-    });
-
-    res.status(200).json(quartieri);
-});
 
 
 
@@ -99,10 +102,8 @@ router.get('/:id/calendario', async (req, res) => {
     });
 });
 
-
-
 // modifica quartiere
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let quartiere = req['quartiere'];
 
     if (req.body.nome !== undefined) quartiere.nome = req.body.nome;

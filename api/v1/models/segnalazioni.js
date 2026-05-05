@@ -15,10 +15,10 @@ const segnalazioneSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    // Punto GPS esatto della segnalazione
-    posizione: {
-        type: { type: String, enum: ['Point'], required: true },
-        coordinates: { type: [Number], required: true } // [Longitudine, Latitudine]
+    //Semplice array di due numeri anche qua
+    coordinate: {
+        type: [Number], // [Latitudine, Longitudine]
+        required: true 
     },
     fotoUrl: {
         type: String, // Salveremo solo il link all'immagine (es. "/uploads/foto123.jpg")
