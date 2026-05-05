@@ -1,5 +1,5 @@
 // models/calendari.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 
 // Schema per un singolo slot di raccolta
@@ -60,6 +60,12 @@ const calendarioSchema = new mongoose.Schema({
 
     // Anno di riferimento del calendario
     anno: { type: Number, required: true },
+    // Aggiunto il riferimento al quartiere
+    quartiere: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Quartieri',
+        required: true 
+    },
 
     // Lista degli slot di raccolta (una voce per ogni tipologia di rifiuto)
     slot: [slotSchema],
@@ -74,4 +80,5 @@ const calendarioSchema = new mongoose.Schema({
 }, { timestamps: true }); // timestamps aggiunge automaticamente createdAt e updatedAt
 
 
-module.exports = mongoose.model('Calendario', calendarioSchema);
+const Calendario = mongoose.model('Calendario', calendarioSchema);
+export default Calendario;
