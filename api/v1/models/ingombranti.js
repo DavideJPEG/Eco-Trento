@@ -6,6 +6,11 @@ const ingombrantiSchema = new mongoose.Schema({
         ref: 'Utente', // Chi fa la richiesta
         required: true
     },
+    viaRitiro: { // la via dove si andra a ritirare l'oggetto
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Strade', 
+        required: true },
+
     descrizioneOggetti: {
         type: String,
         required: true,

@@ -35,7 +35,7 @@ const utenteSchema = new mongoose.Schema({
     },
     ruolo: {
         type: String,
-        enum: ['cittadino', 'operatore', 'admin'],
+        enum: ['cittadino', 'operatore'],
         default: 'cittadino'
     },
     indirizzoPrincipale: { //

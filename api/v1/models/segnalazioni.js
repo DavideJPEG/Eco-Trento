@@ -15,14 +15,11 @@ const segnalazioneSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    //Semplice array di due numeri anche qua
-    coordinate: {
-        type: [Number], // [Latitudine, Longitudine]
-        required: true 
-    },
-    fotoUrl: {
-        type: String, // Salveremo solo il link all'immagine (es. "/uploads/foto123.jpg")
-    },
+    // Non sono necessarie le coordinate ma basta la via tanto l'utente la dovra selezionare da una tendina
+    via: { type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Strade', 
+        required: true },
+
     stato: {
         type: String,
         enum: ['Aperta', 'In_Lavorazione', 'Risolta'],

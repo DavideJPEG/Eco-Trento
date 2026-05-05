@@ -60,12 +60,9 @@ const calendarioSchema = new mongoose.Schema({
 
     // Anno di riferimento del calendario
     anno: { type: Number, required: true },
-    // Aggiunto il riferimento al quartiere
-    quartiere: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Quartieri',
-        required: true 
-    },
+
+    //URL della foto del calendario
+    linkFoto: { type: String },
 
     // Lista degli slot di raccolta (una voce per ogni tipologia di rifiuto)
     slot: [slotSchema],

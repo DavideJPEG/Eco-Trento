@@ -12,6 +12,10 @@ const statoRifiutoSchema = new mongoose.Schema({
         min: 0,
         max: 100,
         default: 0 // Percentuale da 0 a 100
+    },
+    // Per logistica e tracciamento
+    dataUltimoSvuotamento: {
+        type: Date
     }
 });
 
@@ -38,14 +42,9 @@ const isolaSchema = new mongoose.Schema({
     // L'array di bidoni
     bidoni: [statoRifiutoSchema], 
     
-    // Per logistica e tracciamento
-    dataUltimoSvuotamento: {
-        type: Date
-    }
+    
 }, { timestamps: true });
 
-// Aggiungiamo un indice spaziale per velocizzare le ricerche del tipo "Isole vicino a me" quello che ti dicevo usando GeoJSON
-isolaSchema.index({ posizione: '2dsphere' });
 
 const Isole = mongoose.model('Isole', isolaSchema);
 export default Isole;

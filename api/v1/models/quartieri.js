@@ -16,7 +16,12 @@ const quartiereSchema = new mongoose.Schema({
     stileMappa: {
         coloreBordo: { type: String, default: '#000000' }, // Es. Nero
         coloreRiempimento: { type: String, default: '#3388ff' } // Es. Azzurro
-    }
+    },
+    //aggiunto il riferimento al calendario
+    quartiere: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Quartieri'
+    },
 });
 
 // Aggiungiamo un indice spaziale per velocizzare le ricerche geografiche
