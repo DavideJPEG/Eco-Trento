@@ -21,9 +21,6 @@ router.post('/', async (req, res) => {
         tipo: req.body.tipo,
         descrizione: req.body.descrizione,
         via: req.body.via,
-        data: req.body.data,
-        foto: req.body.foto,
-        stato: 'nuova'
     });
 
     segnalazione = await segnalazione.save();
@@ -61,17 +58,12 @@ router.get('/', async (req, res) => {
         filtro.stato = req.query.stato;
     }
 
-    if (req.query.data) {
-        filtro.data = req.query.data;
-    }
-
     let segnalazioni = await Segnalazioni.find(filtro);
 
     segnalazioni = segnalazioni.map((segnalazione) => {
         return {
             self: '/api/v1/segnalazioni/' + segnalazione.id,
             title: segnalazione.tipo,
-            foto: segnalazione.foto
         };
     });
 
@@ -118,7 +110,7 @@ router.delete('/:id', async (req, res) => {
 // mette come presa in carico la segnalazione
 router.patch('/:id/presaInCarico', operatoriAuth, async (req, res) => {
     let segnalazione = req['segnalazione'];
-    segnalazione.stato = 'Presa_in_carico';
+    segnalazione.stato = 'In_Lavorazione';
 
     await segnalazione.save(); // salva le modifiche su MongoDB
     res.status(200).json({
@@ -130,7 +122,7 @@ router.patch('/:id/presaInCarico', operatoriAuth, async (req, res) => {
 // mette come risolta la segnalazione
 router.patch('/:id/risolta', operatoriAuth, async (req, res) => {
     let segnalazione = req['segnalazione'];
-    segnalazione.stato = 'risolta';
+    segnalazione.stato = 'Risolta';
 
     await segnalazione.save(); // salva le modifiche su MongoDB
     res.status(200).json({

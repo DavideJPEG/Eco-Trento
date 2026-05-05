@@ -12,14 +12,13 @@ import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
     - (patch) modificare isola 
 */
 
-// richiesta get per ottenere tutte le isole
+// richiesta get per tutte le isole
 router.get('/', async (req, res) => {
-    // ritorno delle isole mappate
     let isole = await Isole.find({});
-    isole = isole.map((isola) => {
+    isole = isole.map((isola) => {  // era "isole.id" e "isole.nome" — bug
         return {
-            self: '/api/v1/isole/' + isole.id,
-            nome: isole.nome
+            self: '/api/v1/isole/' + isola.id,
+            nome: isola.nome
         };
     });
     res.status(200).json(isole);
@@ -29,8 +28,7 @@ router.get('/', async (req, res) => {
 router.use('/:id', async (req, res, next) => {
     let isola = await Isole.findById(req.params.id).exec();
     if (!isola) {
-        res.status(404).send()
-        console.log('isola non trovata')
+        res.status(404).send();
         return;
     }
     req['isola'] = isola;
@@ -42,58 +40,49 @@ router.get('/:id', async (req, res) => {
     let isola = req['isola'];
     res.status(200).json({
         self: '/api/v1/isole/' + isola.id,
-        ...isola.toObject()
+        ...isola.toObject({ versionKey: false })
     });
 });
 
-// rimuovere isola
+// rimuovere isola (solo operatore)
 router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
-    await Isole.deleteOne({ _id: req.params.id });
-    console.log('isola rimossa');
+    await Isole.deleteOne({ _id: isola._id });
     res.status(204).send();
 });
 
-//inserire nuova isola (aggiungere parametri)
+// inserire nuova isola (solo operatore)
 router.post('/', utentiAuth, operatoriAuth, async (req, res) => {
-
     let isola = new Isole({
-        //informazioni isola
         nome: req.body.nome,
         coordinate: req.body.coordinate,
-        via: req.body.via,
-        statoRifiuti: req.body.statoRifiuti,
-        statoFisico: req.body.statoFisico
+        strada: req.body.strada,      
+        statoFisico: req.body.statoFisico,
+        bidoni: req.body.bidoni       
     });
 
     isola = await isola.save();
 
-    let isolaID = isola._id;
-
-    console.log('isola inserita');
-    // link alla nuova isola creata
-    res.location("/api/v1/isole/" + isolaID).status(201).send();
+    res.location('/api/v1/isole/' + isola._id).status(201).send();
 });
 
-// modifica parziale di una isola esistente solo da operatore
+// modifica parziale isola (solo operatore)
 router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];
 
-    // prendi solo i campi inviati nel body (da aggiungere)
-    const campiModificabili = ['nome', 'coordinate', 'via', 'statoRifiuti', 'statoFisico'];
+    const campiModificabili = ['nome', 'coordinate', 'strada', 'statoFisico', 'bidoni'];
 
     campiModificabili.forEach(campo => {
         if (req.body[campo] !== undefined) {
-            isola[campo] = req.body[campo]; // aggiorna solo i campi ricevuti
+            isola[campo] = req.body[campo];
         }
     });
 
-    await isola.save(); // salva le modifiche su MongoDB
+    await isola.save();
     res.status(200).json({
         self: '/api/v1/isole/' + isola.id,
         ...isola.toObject({ versionKey: false })
     });
 });
 
-
-export default router
+export default router;
