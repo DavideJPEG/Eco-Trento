@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
-//import Utenti from './models/utenti.js'; // get our mongoose model
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+import Utenti from '../models/utenti.js'; // get our mongoose model
 
 router.post('/register', async (req, res) => {
 

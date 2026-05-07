@@ -3,8 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 const router = express.Router();
 import { OAuth2Client } from 'google-auth-library';
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
-//import Utenti from './models/utenti.js'; // get our mongoose model
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+import Utenti from '../models/utenti.js'; // get our mongoose model
 
 
 /*
@@ -45,10 +45,7 @@ router.post('/', async function (req, res) {
 
             // creazione di un nuovo utente (con google account) se non esiste (variabili ancora da definire)
             if (!utente) {
-                const passwordHash = await bcrypt.hash(
-                    'google-account-' + payload.sub,
-                    10
-                );
+                const passwordHash = null
 
                 utente = new Utenti({
                     email: payload.email,

@@ -1,8 +1,8 @@
 import express from 'express';
-import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
 const router = express.Router();
-//import Segnalazioni from './models/segnalazioni.js'; // get our mongoose model
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
+import Segnalazioni from '../models/segnalazioni.js'; // get our mongoose model
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
     
 /*
     - (post) aggiunta di una nuova segnalazione
@@ -112,6 +112,18 @@ router.patch('/:id/presaInCarico', operatoriAuth, async (req, res) => {
     let segnalazione = req['segnalazione'];
     segnalazione.stato = 'In_Lavorazione';
 
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Aggiornamento_Segnalazione',
+            titolo: 'Segnalazione presa in carico',
+            messaggio: 'È stata presa in carico una recente segnalazione effettuata',
+            linkAzione: '/api/v1/segnalazioni/' + segnalazione.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
+
     await segnalazione.save(); // salva le modifiche su MongoDB
     res.status(200).json({
         self: '/api/v1/segnalazioni/' + segnalazione.id,
@@ -124,6 +136,18 @@ router.patch('/:id/risolta', operatoriAuth, async (req, res) => {
     let segnalazione = req['segnalazione'];
     segnalazione.stato = 'Risolta';
 
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Aggiornamento_Segnalazione',
+            titolo: 'Segnalazione risolta',
+            messaggio: 'È stata risolta una recente segnalazione effettuata',
+            linkAzione: '/api/v1//api/v1/segnalazioni/' + segnalazione.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
+    
     await segnalazione.save(); // salva le modifiche su MongoDB
     res.status(200).json({
         self: '/api/v1/segnalazioni/' + segnalazione.id,
