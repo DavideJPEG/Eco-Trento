@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const statoRifiutoSchema = new mongoose.Schema({
     tipoRifiuto: {
         type: String,
-        enum: ['Vetro', 'Carta', 'Organico', 'imballaggi leggeri', 'Secco Residuo'],
+        enum: ['Vetro', 'Carta', 'Organico', 'imballaggi_leggeri', 'Secco Residuo'],
         required: true
     },
     livelloRiempimento: {

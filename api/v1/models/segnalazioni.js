@@ -32,8 +32,6 @@ const segnalazioneSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Ottimizza le query per mostrare le segnalazioni sulla mappa
-segnalazioneSchema.index({ posizione: '2dsphere' });
 
 const Segnalazioni = mongoose.model('Segnalazioni', segnalazioneSchema);
 export default Segnalazioni;
