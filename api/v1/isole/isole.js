@@ -1,8 +1,8 @@
 import express from 'express';
-//import Isole from './models/isole.js'; // get our mongoose model
+import Isole from '../models/isole.js'; // get our mongoose model
 const router = express.Router();
-import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
+import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
 
 /*
     - (get) richiesta generale per tutte le isole

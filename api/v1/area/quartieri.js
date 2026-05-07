@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
-//import Quartieri from './models/quartieri.js'; // get our mongoose model
-//import Calendari from './models/calendari.js'; // get our mongoose model
+import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+import Quartieri from '../models/quartieri.js'; // get our mongoose model
+import Calendari from '../models/calendari.js'; // get our mongoose model
 
 /*
     - (post) inserisce un nuovo quartiere

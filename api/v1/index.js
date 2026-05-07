@@ -7,8 +7,7 @@ import authRoutes from './auth/auth.js';
 import areaRoutes from './area/quartieri.js';
 import ingombrantiRoutes from './ingombranti/ingombranti.js';
 import isoleRoutes from './isole/isole.js';
-import notificheRoutes from './notifiche/notifiche.js';     
-import operatoriRoutes from './operatori/oper.js';
+import notificheRoutes from './notifiche/notifiche.js';
 import segnalazioniRoutes from './segnalazioni/segnalazioni.js';
 import stradeRoutes from './strade/strade.js';
 import utentiRoutes from './utenti/utenti.js';
@@ -34,9 +33,6 @@ app.use('/api/v1/utenti', utentiRoutes);
 app.use('/api/v1/segnalazioni', utentiAuth, segnalazioniRoutes);
 app.use('/api/v1/ingombranti', utentiAuth, ingombrantiRoutes);
 app.use('/api/v1/notifiche', utentiAuth, notificheRoutes);
- 
-// solo operatori
-app.use('/api/v1/operatori', utentiAuth, operatoriAuth, operatoriRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'API v1 attiva' });
@@ -53,7 +49,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
-/*
+
 mongoose.connect(MONGO_URI)
     .then(() => {
         app.listen(PORT, () => {
@@ -63,9 +59,10 @@ mongoose.connect(MONGO_URI)
     .catch((err) => {
         console.error('Errore connessione MongoDB:', err);
     });
-*/
 
+/*
 app.listen(PORT, () => {
     console.log(`API server v1 ascolta su http://localhost:${PORT}`);
 });
+*/
 export default app;

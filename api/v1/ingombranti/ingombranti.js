@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
-//import Ingombranti from './models/ingombranti.js'; // get our mongoose model
-//import Notifiche from './models/notifiche.js'; // get our mongoose model
-import operatoriAuth from './middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
+import Ingombranti from '../models/ingombranti.js'; // get our mongoose model
+import Notifiche from '../models/notifiche.js'; // get our mongoose model
+import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
 
 // ritorna tutte le richieste (operatore = tutte, utente = solo le sue)
 router.get('/', async (req, res) => {
@@ -84,9 +84,17 @@ router.patch('/:id/accetta', operatoriAuth, async (req, res) => {
     richiesta.stato = 'Accettata';
     await richiesta.save();
 
-    await Notifiche.create({
-        // creazione della notifica
-    });
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Avviso_Ingombranti',
+            titolo: 'Richiesta accettata',
+            messaggio: 'È stata accettata la richiesta di ritiro rifiuti',
+            linkAzione: '/api/v1/ingombranti/' + richiesta.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
 
     res.status(200).json({
         self: '/api/v1/ingombranti/' + richiesta.id,
@@ -104,9 +112,17 @@ router.patch('/:id/proponiModifica', operatoriAuth, async (req, res) => {
     if (req.body.noteOperatore) richiesta.noteOperatore = req.body.noteOperatore;
     await richiesta.save();
 
-    await Notifiche.create({
-        // creazione della notifica
-    });
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Avviso_Ingombranti',
+            titolo: 'Richiesta modificata',
+            messaggio: 'È stata apportata una modifica alla richiesta di ritiro rifiuti',
+            linkAzione: '/api/v1/ingombranti/' + richiesta.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
 
     res.status(200).json({
         self: '/api/v1/ingombranti/' + richiesta.id,
@@ -142,9 +158,17 @@ router.patch('/:id/completa', operatoriAuth, async (req, res) => {
     richiesta.stato = 'Completata';
     await richiesta.save();
 
-    await Notifiche.create({
-        // creazione della notifica
-    });
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Avviso_Ingombranti',
+            titolo: 'Richiesta completata',
+            messaggio: 'I rifiuti sono stati prelevati',
+            linkAzione: '/api/v1/ingombranti/' + richiesta.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
 
     res.status(200).json({
         self: '/api/v1/ingombranti/' + richiesta.id,
@@ -158,6 +182,18 @@ router.patch('/:id/annulla', async (req, res) => {
 
     richiesta.stato = 'Annullata';
     await richiesta.save();
+
+    try {
+        await Notifiche.create({
+            utente: richiesta.utente,
+            tipo: 'Avviso_Ingombranti',
+            titolo: 'Richiesta annullata',
+            messaggio: 'È stata annullata la richiesta di ritiro rifiuti',
+            linkAzione: '/api/v1/ingombranti/' + richiesta.id
+        });
+    } catch (err) {
+        console.error('Errore creazione notifica:', err);
+    }
 
     res.status(200).json({
         self: '/api/v1/ingombranti/' + richiesta.id,

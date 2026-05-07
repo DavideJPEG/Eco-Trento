@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import utentiAuth from './middleware/tokenChecker/utentiAuth.js';
-//import Notifiche from './models/notifiche.js'; // get our mongoose model
+import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+import Notifiche from '../models/notifiche.js'; // get our mongoose model
 
 /*
     - (get) richiesta per avere tutte le notifiche dell'utente loggato
