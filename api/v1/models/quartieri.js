@@ -18,14 +18,11 @@ const quartiereSchema = new mongoose.Schema({
         coloreRiempimento: { type: String, default: '#3388ff' } // Es. Azzurro
     },
     //aggiunto il riferimento al calendario
-    quartiere: {
+    calendario: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Quartieri'
-    },
+        ref: 'Calendario'
+    }
 });
-
-// Aggiungiamo un indice spaziale per velocizzare le ricerche geografiche
-quartiereSchema.index({ confini: '2dsphere' });
 
 const Quartieri = mongoose.model('Quartieri', quartiereSchema);
 export default Quartieri;
