@@ -26,25 +26,19 @@ const utenteSchema = new mongoose.Schema({
         type: String,
         // Viene riempito se l'utente fa il login con Google sempre per la questione (SSO)
     },
-    codiceFiscale: {
-        type: String,
-        unique: true, // Ogni cittadino può avere un solo account
-        sparse: true, // Permette di non avere il CF subito (es. se accede con Google) o per gli operatori
-        uppercase: true,
-        trim: true
-    },
     ruolo: {
         type: String,
-        enum: ['cittadino', 'operatore'],
-        default: 'cittadino'
+        enum: ['utente', 'operatore'],
+        default: 'utente'
     },
     indirizzoPrincipale: { //
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Strade', // Riferimento alla strada per capire il calendario (RF3)
+        default: null
     },
     preferenzeNotifiche: {
-        app: { type: Boolean, default: true },
-        email: { type: Boolean, default: true }
+        app: { type: Boolean, default: false },
+        email: { type: Boolean, default: false }
     }
 }, { timestamps: true }); // Aggiunge in automatico createdAt e updatedAt
 

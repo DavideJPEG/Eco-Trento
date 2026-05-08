@@ -102,7 +102,7 @@ router.get('/:id/infoCalendario', async (req, res) => {
             nome: strada.quartiere.nome
         } : null,
         calendario: strada.quartiere && strada.quartiere.calendario ? {
-            pdfCalendario: strada.quartiere.calendario.pdfCalendario
+            pdfCalendario: strada.quartiere.calendario.link
         } : null
     });
 });

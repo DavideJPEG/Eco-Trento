@@ -66,6 +66,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     let richiesta = new Ingombranti({
         utente: req.loggedUser.id,         // preso dal token, non dal body
+        viaRitiro: req.body.viaRitiro,
         descrizioneOggetti: req.body.descrizioneOggetti,
         dataRitiroRichiesta: req.body.dataRitiroRichiesta,
         fasciaOraria: req.body.fasciaOraria,

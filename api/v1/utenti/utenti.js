@@ -1,11 +1,12 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 const router = express.Router();
 import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
 import Utenti from '../models/utenti.js'; // get our mongoose model
 
 router.post('/register', async (req, res) => {
 
-    const { email, password, nome, cognome, quartiere } = req.body;
+    const {nome, cognome, email, password, via} = req.body;
 
     if (!email || !password) {
         return res.status(400).json({
@@ -26,13 +27,11 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const utente = new Utenti({
-        email,
-        password: passwordHash,
         nome: nome || '',
         cognome: cognome || '',
-        ruolo: 'utente',
-        notificheQuartiere : quartiere,
-        notificheAttive: false
+        email: email,
+        password: passwordHash,
+        indirizzoPrincipale : via,
     });
 
     await utente.save();
@@ -67,8 +66,8 @@ router.get('/me', utentiAuth, async (req, res) => {
             nome: utente.nome,
             cognome: utente.cognome,
             ruolo: utente.ruolo,
-            notificheQuartiere: utente.notificheQuartiere,
-            notificheAttive: utente.notificheAttive
+            indirizzoPrincipale: utente.indirizzoPrincipale,
+            preferenzeNotifiche: utente.preferenzeNotifiche
         }
     });
 });
@@ -76,10 +75,21 @@ router.get('/me', utentiAuth, async (req, res) => {
 router.patch('/me', utentiAuth, async (req, res) => {
     const aggiornamenti = {};
 
+    // campi semplici
     if (req.body.nome !== undefined) aggiornamenti.nome = req.body.nome;
     if (req.body.cognome !== undefined) aggiornamenti.cognome = req.body.cognome;
-    if (req.body.notificheAttive !== undefined) aggiornamenti.notificheAttive = req.body.notificheAttive;
-    if (req.body.notificheQuartiere !== undefined) aggiornamenti.notificheQuartiere = req.body.notificheQuartiere;
+    if (req.body.indirizzoPrincipale !== undefined) {
+        aggiornamenti.indirizzoPrincipale = req.body.indirizzoPrincipale;
+    }
+
+    // preferenze notifiche (booleane)
+    // es: { notificaApp: true, notificaEmail: false }
+    if (req.body.notificaApp !== undefined) {
+        aggiornamenti['preferenzeNotifiche.app'] = req.body.notificaApp;
+    }
+    if (req.body.notificaEmail !== undefined) {
+        aggiornamenti['preferenzeNotifiche.email'] = req.body.notificaEmail;
+    }
 
     const utente = await Utenti.findByIdAndUpdate(
         req.loggedUser.id,
@@ -103,8 +113,8 @@ router.patch('/me', utentiAuth, async (req, res) => {
             nome: utente.nome,
             cognome: utente.cognome,
             ruolo: utente.ruolo,
-            notificheQuartiere: utente.notificheQuartiere,
-            notificheAttive: utente.notificheAttive
+            indirizzoPrincipale: utente.indirizzoPrincipale,
+            preferenzeNotifiche: utente.preferenzeNotifiche
         }
     });
 });

@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import Segnalazioni from '../models/segnalazioni.js'; // get our mongoose model
+import Notifiche from '../models/notifiche.js'; // get our mongoose model
 import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
 import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
     
@@ -114,7 +115,7 @@ router.patch('/:id/presaInCarico', operatoriAuth, async (req, res) => {
 
     try {
         await Notifiche.create({
-            utente: richiesta.utente,
+            utente: segnalazione.utente,
             tipo: 'Aggiornamento_Segnalazione',
             titolo: 'Segnalazione presa in carico',
             messaggio: 'È stata presa in carico una recente segnalazione effettuata',
@@ -142,7 +143,7 @@ router.patch('/:id/risolta', operatoriAuth, async (req, res) => {
             tipo: 'Aggiornamento_Segnalazione',
             titolo: 'Segnalazione risolta',
             messaggio: 'È stata risolta una recente segnalazione effettuata',
-            linkAzione: '/api/v1//api/v1/segnalazioni/' + segnalazione.id
+            linkAzione: '/api/v1/segnalazioni/' + segnalazione.id
         });
     } catch (err) {
         console.error('Errore creazione notifica:', err);

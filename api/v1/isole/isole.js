@@ -51,21 +51,6 @@ router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     res.status(204).send();
 });
 
-// inserire nuova isola (solo operatore)
-router.post('/', utentiAuth, operatoriAuth, async (req, res) => {
-    let isola = new Isole({
-        nome: req.body.nome,
-        coordinate: req.body.coordinate,
-        strada: req.body.strada,      
-        statoFisico: req.body.statoFisico,
-        bidoni: req.body.bidoni       
-    });
-
-    isola = await isola.save();
-
-    res.location('/api/v1/isole/' + isola._id).status(201).send();
-});
-
 // modifica parziale isola (solo operatore)
 router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     let isola = req['isola'];

@@ -61,7 +61,7 @@ const calendarioSchema = new mongoose.Schema({
     // Anno di riferimento del calendario
     anno: { type: Number, required: true },
 
-    
+    link: {type: String},
 
     // Lista degli slot di raccolta (una voce per ogni tipologia di rifiuto)
     slot: [slotSchema],

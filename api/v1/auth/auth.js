@@ -54,7 +54,6 @@ router.post('/', async function (req, res) {
                     nome: payload.given_name || '',
                     cognome: payload.family_name || '',
                     ruolo: 'utente',
-                    notificheAttive: false
                 });
 
                 await utente.save();
