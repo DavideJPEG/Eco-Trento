@@ -139,7 +139,7 @@ router.patch('/:id/risolta', operatoriAuth, async (req, res) => {
 
     try {
         await Notifiche.create({
-            utente: richiesta.utente,
+            utente: segnalazione.utente,
             tipo: 'Aggiornamento_Segnalazione',
             titolo: 'Segnalazione risolta',
             messaggio: 'È stata risolta una recente segnalazione effettuata',
