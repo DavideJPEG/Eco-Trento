@@ -1,9 +1,9 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import Ingombranti from '../models/ingombranti.js'; // get our mongoose model
-import Notifiche from '../models/notifiche.js'; // get our mongoose model
-import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+const Ingombranti = require('../models/ingombranti');
+const Notifiche = require('../models/notifiche');
+const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
 
 // ritorna tutte le richieste (operatore = tutte, utente = solo le sue)
 router.get('/', async (req, res) => {
@@ -202,4 +202,4 @@ router.patch('/:id/annulla', async (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;

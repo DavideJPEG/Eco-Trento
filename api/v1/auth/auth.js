@@ -1,10 +1,10 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
-import { OAuth2Client } from 'google-auth-library';
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
-import Utenti from '../models/utenti.js'; // get our mongoose model
+const { OAuth2Client } = require('google-auth-library');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
+const Utenti = require('../models/utenti');
 
 
 /*
@@ -145,4 +145,4 @@ router.get('/me', utentiAuth, async (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;

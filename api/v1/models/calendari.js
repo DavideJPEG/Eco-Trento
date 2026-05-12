@@ -1,5 +1,5 @@
 // models/calendari.js
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 
 // Schema per un singolo slot di raccolta
@@ -77,4 +77,4 @@ const calendarioSchema = new mongoose.Schema({
 
 
 const Calendario = mongoose.model('Calendario', calendarioSchema);
-export default Calendario;
+module.exports = Calendario;

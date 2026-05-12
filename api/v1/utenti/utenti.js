@@ -1,8 +1,8 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
+const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
-import Utenti from '../models/utenti.js'; // get our mongoose model
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
+const Utenti = require('../models/utenti');
 
 router.post('/register', async (req, res) => {
 
@@ -119,4 +119,4 @@ router.patch('/me', utentiAuth, async (req, res) => {
     });
 });
 
-export default router
+module.exports = router;

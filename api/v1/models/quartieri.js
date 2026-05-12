@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const quartiereSchema = new mongoose.Schema({
     nome: {
@@ -25,4 +25,4 @@ const quartiereSchema = new mongoose.Schema({
 });
 
 const Quartieri = mongoose.model('Quartieri', quartiereSchema);
-export default Quartieri;
+module.exports = Quartieri;

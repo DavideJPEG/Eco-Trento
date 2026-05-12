@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 // Sottoschema per lo stato dei singoli bidoni nell'isola
 const statoRifiutoSchema = new mongoose.Schema({
@@ -47,4 +47,4 @@ const isolaSchema = new mongoose.Schema({
 
 
 const Isole = mongoose.model('Isole', isolaSchema);
-export default Isole;
+module.exports = Isole;

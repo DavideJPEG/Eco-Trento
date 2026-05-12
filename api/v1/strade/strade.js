@@ -1,10 +1,10 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import Strade from '../models/strade.js'; // get our mongoose model
-import Quartieri from '../models/quartieri.js'; // get our mongoose model
-import Calendari from '../models/calendari.js'; // get our mongoose model
-import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+const Strade = require('../models/strade');
+const Quartieri = require('../models/quartieri');
+const Calendari = require('../models/calendari');
+const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
 
 /*
     - (get) richiesta per tutte le strade
@@ -107,4 +107,4 @@ router.get('/:id/infoCalendario', async (req, res) => {
     });
 });
 
-export default router
+module.exports = router;

@@ -6,4 +6,4 @@ const operatoriAuth = (req, res, next) => {
     next();
 };
 
-export default operatoriAuth;
+module.exports = operatoriAuth;

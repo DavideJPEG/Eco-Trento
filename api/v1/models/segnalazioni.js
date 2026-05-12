@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const segnalazioneSchema = new mongoose.Schema({
     utente: {
@@ -34,4 +34,4 @@ const segnalazioneSchema = new mongoose.Schema({
 
 
 const Segnalazioni = mongoose.model('Segnalazioni', segnalazioneSchema);
-export default Segnalazioni;
+module.exports = Segnalazioni;

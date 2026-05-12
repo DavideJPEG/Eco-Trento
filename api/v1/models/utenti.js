@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const utenteSchema = new mongoose.Schema({
     nome: {
@@ -43,4 +43,4 @@ const utenteSchema = new mongoose.Schema({
 }, { timestamps: true }); // Aggiunge in automatico createdAt e updatedAt
 
 const Utente = mongoose.model('Utente', utenteSchema);
-export default Utente;
+module.exports = Utente;

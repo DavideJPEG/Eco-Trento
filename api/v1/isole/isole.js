@@ -1,8 +1,8 @@
-import express from 'express';
-import Isole from '../models/isole.js'; // get our mongoose model
+const express = require('express');
+const Isole = require('../models/isole');
 const router = express.Router();
-import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
+const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
 
 /*
     - (get) richiesta generale per tutte le isole
@@ -70,4 +70,4 @@ router.patch('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;

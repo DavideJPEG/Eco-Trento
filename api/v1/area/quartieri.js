@@ -1,9 +1,9 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
-import Quartieri from '../models/quartieri.js'; // get our mongoose model
-import Calendari from '../models/calendari.js'; // get our mongoose model
+const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
+const Quartieri = require('../models/quartieri');
+const Calendari = require('../models/calendari');
 
 /*
     - (post) inserisce un nuovo quartiere
@@ -97,4 +97,4 @@ router.delete('/:id', utentiAuth, operatoriAuth, async (req, res) => {
     res.status(204).send();
 });
 
-export default router;
+module.exports = router;

@@ -1,9 +1,9 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import Segnalazioni from '../models/segnalazioni.js'; // get our mongoose model
-import Notifiche from '../models/notifiche.js'; // get our mongoose model
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
-import operatoriAuth from '../middleware/tokenChecker/operatoriAuth.js';
+const Segnalazioni = require('../models/segnalazioni');
+const Notifiche = require('../models/notifiche');
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
+const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
     
 /*
     - (post) aggiunta di una nuova segnalazione
@@ -156,4 +156,4 @@ router.patch('/:id/risolta', operatoriAuth, async (req, res) => {
     });
 });
 
-export default router
+module.exports = router;

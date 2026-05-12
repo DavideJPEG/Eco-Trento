@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const notificaSchema = new mongoose.Schema({
     utente: {
@@ -29,4 +29,4 @@ const notificaSchema = new mongoose.Schema({
 }, { timestamps: true }); // Ci serve per ordinare le notifiche dalla più recente
 
 const Notifiche = mongoose.model('Notifiche', notificaSchema);
-export default Notifiche;
+module.exports = Notifiche;

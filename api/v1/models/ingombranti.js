@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const ingombrantiSchema = new mongoose.Schema({
     utente: {
@@ -37,4 +37,4 @@ const ingombrantiSchema = new mongoose.Schema({
 }, { timestamps: true }); // Salva in automatico la Data di Creazione (dataRichiesta)
 
 const Ingombranti = mongoose.model('Ingombranti', ingombrantiSchema);
-export default Ingombranti;
+module.exports = Ingombranti;

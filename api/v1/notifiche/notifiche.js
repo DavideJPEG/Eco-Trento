@@ -1,7 +1,7 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import utentiAuth from '../middleware/tokenChecker/utentiAuth.js';
-import Notifiche from '../models/notifiche.js'; // get our mongoose model
+const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
+const Notifiche = require('../models/notifiche');
 
 /*
     - (get) richiesta per avere tutte le notifiche dell'utente loggato
@@ -76,4 +76,4 @@ router.patch('/:id/letta', async (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;

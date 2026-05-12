@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const stradaSchema = new mongoose.Schema({
     nome: {
@@ -17,4 +17,4 @@ const stradaSchema = new mongoose.Schema({
 stradaSchema.index({ nome: 1 });
 
 const Strade = mongoose.model('Strade', stradaSchema);
-export default Strade;
+module.exports = Strade;
