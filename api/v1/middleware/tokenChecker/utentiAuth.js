@@ -3,7 +3,9 @@ const jwt = require('jsonwebtoken');
 const tokenChecker = function (req, res, next) {
 
     // controlla l'intestazione o i parametri URL o i parametri POST per il token
-    var token = req.query.token || req.headers['x-access-token'];
+    var token = req.headers['authorization']?.split(' ')[1]
+        || req.headers['x-access-token']
+        || req.query.token;
     if (!token) {
         return res.status(401).send({
             success: false,
