@@ -42,5 +42,5 @@ const utenteSchema = new mongoose.Schema({
     }
 }, { timestamps: true }); // Aggiunge in automatico createdAt e updatedAt
 
-const Utente = mongoose.model('Utente', utenteSchema);
-module.exports = Utente;
+const Utenti = mongoose.model('Utenti', utenteSchema);
+module.exports = Utenti;

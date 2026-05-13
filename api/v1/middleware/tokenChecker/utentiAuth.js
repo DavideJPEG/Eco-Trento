@@ -7,6 +7,7 @@ const tokenChecker = function (req, res, next) {
         || req.headers['x-access-token']
         || req.query.token;
     if (!token) {
+        console.log('token inesistente')
         return res.status(401).send({
             success: false,
             message: 'Trovato nessun token'
@@ -15,6 +16,7 @@ const tokenChecker = function (req, res, next) {
     // controllo del token se valido
     jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
         if (err) {
+            console.log('token non valido')
             return res.status(403).send({
                 success: false,
                 message: 'Token non verificato'

@@ -91,7 +91,6 @@ router.post('/', async function (req, res) {
                 });
             }
         }
-
         const payload = {
             email: utente.email,
             id: utente._id,
