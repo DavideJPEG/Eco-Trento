@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home - ECOTRENTO</title>
+<style>
+*{
+
+    font-family:Arial, sans-serif;
+
+}
+body{
+    background-color:#1e1e2f;
+}
+.div{
+    background-color: #4a6cf7;
+    display:flex;
+    align-items:center;
+}
+
+.div a{
+    padding:10px;
+    background-color: #4a6cf7;
+    display:inline-block;
+    text-decoration:none;
+    color: white;
+    transition: 0.3s;
+}
+
+.div a:hover{
+    background-color: #3555d3;
+}
+
+/* spinge login a destra */
+.right{
+    margin-left:auto;
+}
+
+h1{
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    letter-spacing: 2px;
+    text-align: center;
+    color: white;
+}
+
+.container{
+    margin-top: 13px;
+    display:flex;
+    gap:10px;
+    align-items:stretch;
+}
+
+/* iframe */
+.container iframe{
+    width:60%;
+    height:450px;
+    border:0;
+    border-radius:12px;
+}
+
+/* div */
+.box{
+    width:40%;
+    background:#2c3e50;
+    color:white;
+    padding:20px;
+    border-radius:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="title">
+    <h1 class="title">ECOTRENTO</h1>
+</div>
+
+<div class="div">
+    <a class="link" href="tabSpzz.html">Orari</a>
+
+    <!-- LOGIN A DESTRA -->
+    <a class="right" href="login.html">Login</a>
+</div>
+
+<div class="container">
+
+<iframe
+    src="https://www.google.com/maps?q=Trento&output=embed"
+    width="100%"
+    height="450"
+    style="border:0; border-radius:12px;"
+    allowfullscreen=""
+    loading="lazy">
+</iframe>
+
+    
+<div class="box">  
+<p></p>
+</div>
+
+</div>
+
+
+
+
+</body>
+</html>
