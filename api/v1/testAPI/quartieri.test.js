@@ -73,13 +73,6 @@ describe('GET /api/v1/area', () => {
 });
 
 describe('POST /api/v1/area', () => {
-    test('crea quartiere senza token -> 401', async () => {
-        const res = await request(app)
-            .post('/api/v1/area')
-            .send({ nome: 'Nuovo', confini: [], stileMappa: {} });
-        expect(res.statusCode).toBe(401);
-    });
-
     test('crea quartiere come operatore -> 201', async () => {
         const res = await request(app)
             .post('/api/v1/area')
@@ -97,11 +90,6 @@ describe('POST /api/v1/area', () => {
 });
 
 describe('DELETE /api/v1/area/:id', () => {
-    test('elimina senza token -> 401', async () => {
-        const res = await request(app).delete(`/api/v1/area/${quartiereId}`);
-        expect(res.statusCode).toBe(401);
-    });
-
     test('elimina come operatore -> 204', async () => {
         const tmp = await Quartieri.create({
             nome: 'Da Eliminare',

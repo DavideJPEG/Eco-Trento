@@ -122,26 +122,4 @@ router.post('/', async function (req, res) {
         });
     }
 });
-
-router.get('/me', utentiAuth, async (req, res) => {
-    let utente = await Utenti.findById(req.loggedUser.id).exec();
-
-    if (!utente) {
-        res.status(404).json({
-            success: false,
-            message: 'Utente non trovato'
-        });
-        return;
-    }
-
-    res.status(200).json({
-        success: true,
-        user: {
-            id: utente.id,
-            email: utente.email,
-            ruolo: utente.ruolo,
-        }
-    });
-});
-
 module.exports = router;

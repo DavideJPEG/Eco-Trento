@@ -119,4 +119,18 @@ router.patch('/me', utentiAuth, async (req, res) => {
     });
 });
 
+router.delete('/me', utentiAuth, async (req, res) => {
+    const utente = await Utenti.findByIdAndDelete(req.loggedUser.id).exec();
+
+    if (!utente) {
+        console.log('utente non trovato');
+        return res.status(404).json({
+            success: false,
+            message: 'Utente non trovato'
+        });
+    }
+    console.log('utente eliminato');
+    return res.status(204).send();
+});
+
 module.exports = router;

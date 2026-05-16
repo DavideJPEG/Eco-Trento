@@ -46,22 +46,4 @@ describe('POST /api/v1/auth', () => {
 
         expect(res.statusCode).toBe(401);
     });
-
-    test('GET /me senza token -> 401', async () => {
-        const res = await request(app).get('/api/v1/auth/me');
-        expect(res.statusCode).toBe(401);
-    });
-
-    test('GET /me con token valido -> 200', async () => {
-        const login = await request(app)
-            .post('/api/v1/auth')
-            .send({ email: 'utente@test.it', password: 'Test1234!' });
-
-        const res = await request(app)
-            .get('/api/v1/auth/me')
-            .set('Authorization', `Bearer ${login.body.token}`);
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body.user.email).toBe('utente@test.it');
-    });
 });

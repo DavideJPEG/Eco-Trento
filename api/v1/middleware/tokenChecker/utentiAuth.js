@@ -7,7 +7,7 @@ const tokenChecker = function (req, res, next) {
         || req.headers['x-access-token']
         || req.query.token;
     if (!token) {
-        console.log('token inesistente')
+        console.log('token mancante');
         return res.status(401).send({
             success: false,
             message: 'Trovato nessun token'

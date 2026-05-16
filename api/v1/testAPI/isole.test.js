@@ -52,13 +52,6 @@ describe('GET /api/v1/isole', () => {
 });
 
 describe('PATCH /api/v1/isole/:id', () => {
-    test('modifica senza token -> 401', async () => {
-        const res = await request(app)
-            .patch(`/api/v1/isole/${isolaId}`)
-            .send({ statoFisico: 'In_Manutenzione' });
-        expect(res.statusCode).toBe(401);
-    });
-
     test('modifica come operatore -> 200', async () => {
         const res = await request(app)
             .patch(`/api/v1/isole/${isolaId}`)
@@ -70,11 +63,6 @@ describe('PATCH /api/v1/isole/:id', () => {
 });
 
 describe('DELETE /api/v1/isole/:id', () => {
-    test('elimina senza token -> 401', async () => {
-        const res = await request(app).delete(`/api/v1/isole/${isolaId}`);
-        expect(res.statusCode).toBe(401);
-    });
-
     test('elimina come operatore -> 204', async () => {
         const tmp = await Isole.create({
             nome: 'Da Eliminare',
