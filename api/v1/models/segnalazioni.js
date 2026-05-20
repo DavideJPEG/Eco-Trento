@@ -25,11 +25,6 @@ const segnalazioneSchema = new mongoose.Schema({
         enum: ['Aperta', 'In_Lavorazione', 'Risolta'],
         default: 'Aperta'
     },
-    // Se la segnalazione è stata associata in automatico a un'isola vicina
-    isolaRiferimento: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Isole'
-    }
 }, { timestamps: true });
 
 
