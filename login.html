@@ -1,171 +1,119 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECOTN Login</title>
-
-<style>
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-        font-family:Arial, sans-serif;
-    }
-
-    body{
-        height:100vh;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        background:#1e1e2f;
-    }
-
-    .container{
-        width:350px;
-        background:#fff;
-        padding:30px;
-        border-radius:15px;
-        box-shadow:0 10px 25px rgba(0,0,0,0.3);
-    }
-
-    .tabs{
-        display:flex;
-        margin-bottom:20px;
-    }
-
-    .tabs button{
-        flex:1;
-        padding:12px;
-        border:none;
-        cursor:pointer;
-        background:#ddd;
-        font-size:16px;
-        transition:0.3s;
-    }
-
-    .tabs button.active{
-        background:#4a6cf7;
-        color:white;
-        font-weight:bold;
-    }
-
-    .form{
-        display:none;
-        flex-direction:column;
-    }
-
-    .form.active{
-        display:flex;
-    }
-
-    h1{
-        margin-bottom:20px;
-        text-align: center;
-        font-size: 40px;
-    }
-
-    .form h2{
-        margin-bottom:20px;
-        text-align:center;
-        color:#333;
-    }
-
-    .form input{
-        margin-bottom:15px;
-        padding:12px;
-        border:1px solid #ccc;
-        border-radius:8px;
-        font-size:14px;
-    }
-
-    .form button{
-        padding:12px;
-        border:none;
-        border-radius:8px;
-        background:#4a6cf7;
-        color:white;
-        font-size:16px;
-        cursor:pointer;
-        transition:0.3s;
-    }
-
-    .form button:hover{
-        background:#3555d3;
-    }
-
-   a.button{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:12px 20px;
-    background:white;
-    color:#4a6cf7;
-    text-decoration:underline;
-    border-radius:8px;
-    transition:0.3s;
-    margin-top:10px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECOTN - Login & Registrazione</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* Mantengo lo stile del tuo amico ma aggiungo piccole correzioni */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Arial, sans-serif; }
+        body { height:100vh; display:flex; justify-content:center; align-items:center; background:#1e1e2f; }
+        .container { width:400px; background:#fff; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.3); }
+        h1 { margin-bottom:20px; text-align: center; color: #1e1e2f; font-size: 32px; letter-spacing: 2px; }
+        .tabs { display:flex; margin-bottom:20px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
+        .tabs button { flex:1; padding:12px; border:none; cursor:pointer; background:#eee; transition:0.3s; }
+        .tabs button.active { background:#4a6cf7; color:white; font-weight:bold; }
+        .form { display:flex; flex-direction:column; }
+        .form input { margin-bottom:12px; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:14px; }
+        .form button.submit-btn { padding:12px; border:none; border-radius:8px; background:#4a6cf7; color:white; font-size:16px; cursor:pointer; font-weight: bold; }
+        .form button.submit-btn:hover { background:#3555d3; }
+        .error-msg { color: #d9534f; background: #fdf7f7; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center; border: 1px solid #d9534f; }
+        .success-msg { color: #28a745; background: #f4faf6; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center; border: 1px solid #28a745; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-
-<h1>ECOTRENTO</h1>
+<div id="app" class="container">
+    <h1>ECOTRENTO</h1>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="showForm('login')">Login</button>
-        <button class="tab-btn" onclick="showForm('register')">Registrati</button>
+        <button :class="{active: mode === 'login'}" @click="mode = 'login'">Login</button>
+        <button :class="{active: mode === 'register'}" @click="mode = 'register'">Registrati</button>
     </div>
 
-    <!-- LOGIN -->
-    <form class="form active" id="login">
-        
-        <h2>Accesso</h2>
+    <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
+    <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>
 
-        <input type="email" placeholder="Email" required>
-        <input type="password" placeholder="Password" required>
-
-        <button type="submit">Accedi</button>
+    <form v-if="mode === 'login'" class="form" @submit.prevent="handleLogin">
+        <input type="email" v-model="loginData.email" placeholder="Email" required>
+        <input type="password" v-model="loginData.password" placeholder="Password" required>
+        <button type="submit" class="submit-btn">Accedi</button>
     </form>
 
-    <!-- REGISTRAZIONE -->
-    <form class="form" id="register">
-
-        <h2>Registrazione</h2>
-
-        <input type="text" placeholder="Nome utente" required>
-        <input type="email" placeholder="Email" required>
-        <input type="password" placeholder="Password" required>
-
-        <button type="submit">Registrati</button>
+    <form v-if="mode === 'register'" class="form" @submit.prevent="handleRegister">
+        <input type="text" v-model="registerData.nome" placeholder="Nome" required>
+        <input type="text" v-model="registerData.cognome" placeholder="Cognome" required>
+        <input type="email" v-model="registerData.email" placeholder="Email" required>
+        <input type="password" v-model="registerData.password" placeholder="Password" required>
+        <button type="submit" class="submit-btn">Crea Account</button>
     </form>
-
-    <a class="button" href="main.html">Vai alla Home</a>
 
 </div>
 
 <script>
-    function showForm(formId){
+    const { createApp } = Vue;
 
-        // Nasconde tutti i form
-        document.querySelectorAll('.form').forEach(form => {
-            form.classList.remove('active');
-        });
+    createApp({
+        data() {
+            return {
+                mode: 'login', // può essere 'login' o 'register'
+                errorMessage: '',
+                successMessage: '',
+                // Dati collegati ai campi input (v-model)
+                loginData: { email: '', password: '' },
+                registerData: { nome: '', cognome: '', email: '', password: '' }
+            }
+        },
+        methods: {
+            // FUNZIONE PER IL LOGIN
+            async handleLogin() {
+                this.errorMessage = '';
+                try {
+                    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.loginData)
+                    });
 
-        // Rimuove active dai bottoni
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
+                    const data = await response.json();
 
-        // Mostra il form selezionato
-        document.getElementById(formId).classList.add('active');
+                    if (!response.ok) throw new Error(data.error || 'Errore durante il login');
 
-        // Attiva il bottone corretto
-        event.target.classList.add('active');
-    }
+                    // Salviamo il Token e i dati utente nel browser
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    // Redirezione alla home
+                    window.location.href = 'main.html';
+                } catch (err) {
+                    this.errorMessage = err.message;
+                }
+            },
+
+            // FUNZIONE PER LA REGISTRAZIONE
+            async handleRegister() {
+                this.errorMessage = '';
+                this.successMessage = '';
+                try {
+                    const response = await fetch('http://localhost:3000/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.registerData)
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Errore durante la registrazione');
+
+                    this.successMessage = "Registrazione completata! Ora puoi fare il login.";
+                    this.mode = 'login'; // Torna al form di login automaticamente
+                } catch (err) {
+                    this.errorMessage = err.message;
+                }
+            }
+        }
+    }).mount('#app');
 </script>
 
 </body>
