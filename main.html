@@ -241,10 +241,46 @@
         }
         .leaflet-popup-tip {
             background: #0c0c14 !important;
+
         }
+        /* --- TOAST NOTIFICATIONS --- */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #1e1e2f;
+            border: 1px solid var(--accent-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }   
     </style>
 </head>
 <body>
+
+    <div class="toast-container">
+    <div v-for="toast in toasts" :key="toast.id" class="toast">
+        <i class="fa-solid fa-check-circle" style="color: var(--accent-green);"></i>
+        {{ toast.message }}
+    </div>
+</div>
 
     <div id="app">
         
@@ -342,7 +378,8 @@
                     isLogged: false, // Gestione dinamica Navbar
                     map: null,
                     selectedElement: null,
-                    
+                    toasts: [],
+
                     // --- I TUOI DATI ---
                     quartieri: [
                         {
@@ -411,12 +448,12 @@
             },
             methods: {
                 logout() {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    this.isLogged = false;
-                    alert("Logout effettuato con successo.");
-                    window.location.reload(); 
-                },
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                this.isLogged = false;
+                this.showToast("Logout effettuato correttamente."); 
+                setTimeout(() => { window.location.reload(); }, 1500); 
+            },
                 initMap() {
                     // Centro mappa
                     this.map = L.map('map', { zoomControl: false }).setView([46.0640, 11.1240], 15);
@@ -466,8 +503,15 @@
                     if (rifiuto.includes("Carta")) return "fa-file-lines icon-carta";
                     if (rifiuto.includes("Organico")) return "fa-apple-whole icon-organico";
                     return "fa-trash-can icon-residuo";
-                }
-            }
+                },
+                showToast(message) {
+                const id = Date.now();
+                this.toasts.push({ id, message });
+                setTimeout(() => {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                }, 3000); // Il messaggio scompare dopo 3 secondi
+            },
+        }
         }).mount('#app');
     </script>
 </body>
