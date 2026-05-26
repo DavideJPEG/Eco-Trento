@@ -6,21 +6,119 @@
     <title>ECOTN - Login & Registrazione</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        /* Mantengo lo stile del tuo amico ma aggiungo piccole correzioni */
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Arial, sans-serif; }
-        body { height:100vh; display:flex; justify-content:center; align-items:center; background:#1e1e2f; }
-        .container { width:400px; background:#fff; padding:30px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.3); }
-        h1 { margin-bottom:20px; text-align: center; color: #1e1e2f; font-size: 32px; letter-spacing: 2px; }
-        .tabs { display:flex; margin-bottom:20px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
-        .tabs button { flex:1; padding:12px; border:none; cursor:pointer; background:#eee; transition:0.3s; }
-        .tabs button.active { background:#4a6cf7; color:white; font-weight:bold; }
-        .form { display:flex; flex-direction:column; }
-        .form input { margin-bottom:12px; padding:12px; border:1px solid #ccc; border-radius:8px; font-size:14px; }
-        .form button.submit-btn { padding:12px; border:none; border-radius:8px; background:#4a6cf7; color:white; font-size:16px; cursor:pointer; font-weight: bold; }
-        .form button.submit-btn:hover { background:#3555d3; }
-        .error-msg { color: #d9534f; background: #fdf7f7; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center; border: 1px solid #d9534f; }
-        .success-msg { color: #28a745; background: #f4faf6; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center; border: 1px solid #28a745; }
-    </style>
+    :root {
+        --bg-main: #080810;
+        --accent-blue: #4a6cf7;
+        --accent-green: #00ff88;
+        --text-muted: #8a8a9e;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+
+    body { 
+        height:100vh; 
+        display:flex; 
+        justify-content:center; 
+        align-items:center; 
+        /* Sfondo con gradiente profondo per dare profondità */
+        background: radial-gradient(circle at center, #1a1a2e 0%, #080810 100%);
+        overflow: hidden;
+    }
+
+    /* Decorazione: un cerchio sfocato che brilla dietro la card */
+    body::before {
+        content: "";
+        position: absolute;
+        width: 400px; height: 400px;
+        background: var(--accent-blue);
+        filter: blur(150px);
+        opacity: 0.15;
+        z-index: 0;
+    }
+
+    .container { 
+        position: relative;
+        z-index: 1;
+        width:400px; 
+        background: rgba(255, 255, 255, 0.03); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding:40px; 
+        border-radius:24px; 
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+    }
+
+    h1 { 
+        margin-bottom:30px; 
+        text-align: center; 
+        font-size: 28px; 
+        font-weight: 900;
+        letter-spacing: 3px;
+        background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .tabs { 
+        display:flex; 
+        margin-bottom:25px; 
+        background: rgba(0,0,0,0.2);
+        padding: 5px;
+        border-radius: 12px;
+    }
+
+    .tabs button { 
+        flex:1; padding:10px; border:none; cursor:pointer; 
+        background:transparent; color: var(--text-muted);
+        font-size: 14px; font-weight: 600;
+        transition: 0.3s; border-radius: 10px;
+    }
+
+    .tabs button.active { 
+        background: var(--accent-blue); 
+        color:white; 
+        box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+    }
+
+    .form { display:flex; flex-direction:column; gap: 15px; }
+
+    .form input { 
+        padding:14px; 
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1); 
+        border-radius:12px; 
+        color: white;
+        font-size:14px; 
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .form input:focus {
+        border-color: var(--accent-blue);
+        background: rgba(255,255,255,0.08);
+    }
+
+    .form button.submit-btn { 
+        margin-top: 10px;
+        padding:14px; 
+        border:none; 
+        border-radius:12px; 
+        background: linear-gradient(135deg, var(--accent-blue), #3555d3); 
+        color:white; 
+        font-size:16px; 
+        cursor:pointer; 
+        font-weight: 700;
+        transition: 0.3s;
+    }
+
+    .form button.submit-btn:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(74, 108, 247, 0.4);
+    }
+
+    .error-msg { color: #ff4757; font-size: 12px; text-align: center; }
+</style>
 </head>
 <body>
 
