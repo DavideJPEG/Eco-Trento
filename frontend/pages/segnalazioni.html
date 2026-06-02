@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segnalazioni - ECOTRENTO</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Copia gli stessi stili :root e globali di main.html per coerenza */
+        :root { --bg-main: #080810; --bg-card: rgba(18, 18, 30, 0.75); --accent-green: #00ff88; --accent-blue: #00d2ff; --text-muted: #8a8a9e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-main); color: white; min-height: 100vh; padding: 30px; display: flex; justify-content: center; }
+        
+        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        
+        h1 { font-size: 24px; margin-bottom: 5px; font-weight: 800; }
+        p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
+
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 13px; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 1px; }
+        
+        input, select, textarea {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 12px; color: white; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-green); background: rgba(255,255,255,0.06); }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-green), #00b894);
+            color: #080810; border: none; padding: 15px; border-radius: 12px;
+            font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
+
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .back-link:hover { color: white; }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
+        
+        <div class="card">
+            <h1>Invia una Segnalazione</h1>
+            <p class="subtitle">Aiutaci a mantenere Trento pulita. Segnala cestini pieni o rifiuti abbandonati.</p>
+
+            <form @submit.prevent="submitSegnalazione">
+                <div class="form-group">
+                    <label>Tipo di Problema</label>
+                    <select v-model="form.tipo" required>
+                        <option value="" disabled>Seleziona una categoria...</option>
+                        <option value="Rifiuti abbandonati">Rifiuti abbandonati sul suolo pubblico</option>
+                        <option value="Cestino pieno">Cestino stradale pieno / strabordante</option>
+                        <option value="Campana danneggiata">Campana / Isola ecologica danneggiata</option>
+                        <option value="Mancata raccolta">Mancata raccolta porta a porta</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Via / Piazza di Trento</label>
+                    <input type="text" v-model="form.via" placeholder="Esempio: Via Belenzani" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrizione Dettagliata</label>
+                    <textarea v-model="form.descrizione" rows="4" placeholder="Descrivi il problema (es: vicino al civico 10...)"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-paper-plane"></i> INVIA SEGNALAZIONE
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        // --- BLOCCO DI SICUREZZA ---
+        // Controlla se l'utente ha il "pass" (token) nel browser
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("Devi effettuare l'accesso per utilizzare questo servizio.");
+            window.location.href = 'login.html'; // Lo sbatte fuori!
+        }
+         // ---------------------------
+
+const { createApp } = Vue;
+
+createApp({
+            data() {
+                return {
+                    form: { tipo: '', via: '', descrizione: '' }
+                }
+            },
+            methods: {
+                submitSegnalazione() {
+                    alert("Segnalazione inviata con successo! (Simulazione)");
+                    window.location.href = 'main.html';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

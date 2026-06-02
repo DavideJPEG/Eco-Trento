@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Dashboard - ECOTRENTO</title>
+    
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-main: #080810;
+            --bg-card: rgba(18, 18, 30, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-green: #00ff88;
+            --accent-blue: #00d2ff;
+            --text-muted: #8a8a9e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden; /* Blocca lo scroll dell'intera pagina */
+        }
+
+        /* --- IL CONTENITORE VUE ORA GESTISCE IL LAYOUT A TUTTO SCHERMO --- */
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            height: 70px;
+            background: rgba(8, 8, 16, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: #a0a0b0;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: inset 0 0 0 1px var(--border-glass);
+        }
+
+        .nav-links a.btn-login {
+            background: linear-gradient(135deg, #4a6cf7, #3555d3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
+
+        .nav-links a.btn-logout {
+            background: #ff4757;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        /* --- LAYOUT MAPPA E SIDEBAR --- */
+        .main-layout {
+            flex: 1; /* Prende tutto lo spazio rimanente sotto la navbar */
+            position: relative;
+            display: flex;
+            height: calc(100vh - 70px); /* Altezza precisa per Leaflet */
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .sidebar-panel {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            bottom: 25px;
+            width: 440px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            z-index: 1000;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+
+        /* --- STILI INTERNI ALLA SIDEBAR --- */
+        .panel-header {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-blue);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .placeholder-box {
+            margin: auto 0;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .placeholder-box i {
+            font-size: 45px;
+            background: linear-gradient(45deg, #3a3a50, #5a5a75);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .rule-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .rule-row:last-child {
+            border-bottom: none;
+        }
+
+        .rifiuto-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .icon-imballaggi { color: #eccc68; }
+        .icon-carta { color: #1e90ff; }
+        .icon-organico { color: #ffa502; }
+        .icon-residuo { color: #747d8c; }
+
+        .time-badge {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: monospace;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .special-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .special-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* --- STILI LEAFLET POPUP --- */
+        .leaflet-popup-content-wrapper {
+            background: #0c0c14 !important;
+            color: white !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 5px;
+        }
+        .leaflet-popup-tip {
+            background: #0c0c14 !important;
+
+        }
+        /* --- TOAST NOTIFICATIONS --- */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #1e1e2f;
+            border: 1px solid var(--accent-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }   
+    </style>
+</head>
+<body>
+
+    <div class="toast-container">
+    <div v-for="toast in toasts" :key="toast.id" class="toast">
+        <i class="fa-solid fa-check-circle" style="color: var(--accent-green);"></i>
+        {{ toast.message }}
+    </div>
+</div>
+
+    <div id="app">
+        
+        <nav class="navbar">
+            <div class="brand">
+                <i class="fa-solid fa-seedling"></i> ECOTRENTO
+            </div>
+            
+            <div class="nav-links">
+                <a href="main.html" class="active"><i class="fa-solid fa-map-location-dot"></i> Mappa</a>
+                <a href="tabSpzz.html"><i class="fa-solid fa-calendar-days"></i> Calendario</a>
+                <a href="segnalazioni.html"><i class="fa-solid fa-triangle-exclamation"></i> Segnala</a>
+                <a href="ingombranti.html"><i class="fa-solid fa-truck-ramp-box"></i> Ingombranti</a>
+                
+                <a v-if="!isLogged" href="login.html" class="btn-login">
+                    <i class="fa-solid fa-user"></i> Accedi
+                </a>
+                <a v-if="isLogged" href="#" @click.prevent="logout" class="btn-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Esci
+                </a>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            
+            <div id="map"></div>
+
+            <div class="sidebar-panel">
+
+                <div v-if="!selectedElement" class="placeholder-box">
+                    <i class="fa-solid fa-mountain-city"></i>
+                    <h3 style="color: white; margin-bottom: 8px; font-size: 18px;">Esplora Trento</h3>
+                    <p style="font-size: 14px; line-height: 1.5;">Clicca su un'area della mappa per vedere i giorni di raccolta della zona, o seleziona un'icona per i punti di raccolta speciali (Olio esausto, RAEE).</p>
+                </div>
+
+                <div v-if="selectedElement && selectedElement.type === 'quartiere'" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="panel-header">
+                        <i class="fa-solid fa-draw-polygon"></i> info zona di residenza
+                    </div>
+                    <div>
+                        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">{{ selectedElement.nome }}</h2>
+                        <p style="color: var(--text-muted); font-size: 13px;">Calendario Porta a Porta attivo questa settimana</p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3 style="font-size: 12px; text-transform: uppercase; color: var(--accent-green); letter-spacing: 1px;">Regole Esposizione Rifiuti:</h3>
+                        
+                        <div v-for="regola in selectedElement.regole" :key="regola.rifiuto" class="rule-row">
+                            <div class="rifiuto-badge">
+                                <i :class="['fa-solid', getIconClass(regola.rifiuto)]"></i>
+                                <span>{{ regola.rifiuto }}</span>
+                            </div>
+                            <div class="time-badge">
+                                {{ regola.orario }}
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                        <i class="fa-solid fa-circle-info"></i> Attenzione: Esporre i sacchi o i mastelli sul suolo pubblico esclusivamente nei giorni e negli orari indicati.
+                    </p>
+                </div>
+
+                <div v-if="selectedElement && selectedElement.type === 'speciale'" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="panel-header" style="color: var(--accent-green)">
+                        <i class="fa-solid fa-location-crosshairs"></i> punto di raccolta speciale
+                    </div>
+                    
+                    <div class="special-header">
+                        <div class="special-icon-wrapper" :style="{ color: selectedElement.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff' }">
+                            <i :class="['fa-solid', selectedElement.categoria === 'Olio Esausto' ? 'fa-bottle-droplet' : 'fa-laptop-code']"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 20px; font-weight: 800;">{{ selectedElement.nome }}</h2>
+                            <span style="font-size: 12px; color: var(--text-muted)">Categoria: {{ selectedElement.categoria }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div style="font-size: 14px; line-height: 1.6;">
+                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">📍 Dove si trova:</strong><br>{{ selectedElement.indirizzo }}</p>
+                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">🕒 Note d'uso:</strong><br>{{ selectedElement.note }}</p>
+                            <p><strong>🟢 Stato:</strong> {{ selectedElement.stato }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div> <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    isLogged: false, // Gestione dinamica Navbar
+                    map: null,
+                    selectedElement: null,
+                    toasts: [],
+
+                    // --- I TUOI DATI ---
+                    quartieri: [
+                        {
+                            type: 'quartiere',
+                            nome: "Centro Storico",
+                            poligono: [
+                                [46.0715, 11.1170],
+                                [46.0715, 11.1270],
+                                [46.0630, 11.1270],
+                                [46.0630, 11.1170]
+                            ],
+                            coloreStile: "#00ff88",
+                            regole: [
+                                { rifiuto: "Imballaggi Leggeri", orario: "Lunedì entro 09:00" },
+                                { rifiuto: "Carta", orario: "Mercoledì entro 09:00" },
+                                { rifiuto: "Organico", orario: "Mar / Gio / Sab entro 08:30" },
+                                { rifiuto: "Secco Residuo", orario: "Venerdì entro 09:00" }
+                            ]
+                        },
+                        {
+                            type: 'quartiere',
+                            nome: "Zona Oltrefersina / Clarina",
+                            poligono: [
+                                [46.0610, 11.1190],
+                                [46.0610, 11.1350],
+                                [46.0500, 11.1350],
+                                [46.0500, 11.1190]
+                            ],
+                            coloreStile: "#00d2ff",
+                            regole: [
+                                { rifiuto: "Imballaggi Leggeri", orario: "Martedì entro 13:00" },
+                                { rifiuto: "Carta", orario: "Giovedì entro 12:00" },
+                                { rifiuto: "Organico", orario: "Lun / Mer / Ven entro 11:00" },
+                                { rifiuto: "Secco Residuo", orario: "Sabato entro 13:00" }
+                            ]
+                        }
+                    ],
+                    puntiSpeciali: [
+                        {
+                            type: 'speciale',
+                            nome: "Raccolta Olio Alimentare - Piazza Fiera",
+                            categoria: "Olio Esausto",
+                            indirizzo: "Piazza Fiera, nei pressi delle mura storiche",
+                            note: "Inserire l'olio solo in bottiglie di plastica ben chiuse. Non sversare direttamente.",
+                            stato: "Disponibile 24h",
+                            coordinate: [46.0645, 11.1235]
+                        },
+                        {
+                            type: 'speciale',
+                            nome: "Punto Raccolta RAEE - Via Calepina",
+                            categoria: "Piccoli Elettrodomestici",
+                            indirizzo: "Via Calepina, vicino all'ecocampus",
+                            note: "Valido per telefoni, caricabatterie, phon e piccoli elettrodomestici max 25cm.",
+                            stato: "Attivo (Presidiato)",
+                            coordinate: [46.0665, 11.1245]
+                        }
+                    ]
+                }
+            },
+            mounted() {
+                // Controllo Token al caricamento per la Navbar
+                this.isLogged = !!localStorage.getItem('token');
+                
+                // Inizializza Leaflet
+                this.initMap();
+            },
+            methods: {
+                logout() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                this.isLogged = false;
+                this.showToast("Logout effettuato correttamente."); 
+                setTimeout(() => { window.location.reload(); }, 1500); 
+            },
+                initMap() {
+                    // Centro mappa
+                    this.map = L.map('map', { zoomControl: false }).setView([46.0640, 11.1240], 15);
+                    L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+                    
+                    // Stile Dark
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
+                        attribution: '&copy; OpenStreetMap contributors' 
+                    }).addTo(this.map);
+
+                    // Disegna i quartieri
+                    this.quartieri.forEach(q => {
+                        const polygonLayer = L.polygon(q.poligono, { 
+                            color: q.coloreStile, 
+                            weight: 2, 
+                            fillColor: q.coloreStile, 
+                            fillOpacity: 0.08, 
+                            dashArray: '5, 5' 
+                        }).addTo(this.map);
+                        
+                        polygonLayer.on('mouseover', () => polygonLayer.setStyle({ fillOpacity: 0.2, weight: 3 }));
+                        polygonLayer.on('mouseout', () => polygonLayer.setStyle({ fillOpacity: 0.08, weight: 2 }));
+                        
+                        polygonLayer.on('click', (e) => {
+                            this.selectedElement = q;
+                            L.popup().setLatLng(e.latlng).setContent(`<b>Circoscrizione: ${q.nome}</b>`).openOn(this.map);
+                        });
+                    });
+
+                    // Disegna i punti speciali
+                    this.puntiSpeciali.forEach(p => {
+                        const marker = L.circleMarker(p.coordinate, { 
+                            radius: 8, 
+                            color: p.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff', 
+                            fillColor: p.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff', 
+                            fillOpacity: 0.8, 
+                            weight: 3 
+                        }).addTo(this.map);
+                        
+                        marker.on('click', () => {
+                            this.selectedElement = p;
+                        });
+                    });
+                },
+                getIconClass(rifiuto) {
+                    if (rifiuto.includes("Imballaggi")) return "fa-box-open icon-imballaggi";
+                    if (rifiuto.includes("Carta")) return "fa-file-lines icon-carta";
+                    if (rifiuto.includes("Organico")) return "fa-apple-whole icon-organico";
+                    return "fa-trash-can icon-residuo";
+                },
+                showToast(message) {
+                const id = Date.now();
+                this.toasts.push({ id, message });
+                setTimeout(() => {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                }, 3000); // Il messaggio scompare dopo 3 secondi
+            },
+        }
+        }).mount('#app');
+    </script>
+</body>
+</html>
