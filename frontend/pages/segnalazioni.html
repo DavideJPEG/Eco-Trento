@@ -30,12 +30,17 @@
         .btn-submit {
             background: linear-gradient(135deg, var(--accent-green), #00b894);
             color: #080810; border: none; padding: 15px; border-radius: 12px;
-            font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px;
+            font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%;
         }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
 
         .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .back-link:hover { color: white; }
+
+        /* Aggiunte per i messaggi di feedback */
+        .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
+        .success { color: var(--accent-green); }
+        .error { color: #ff4757; }
     </style>
 </head>
 <body>
@@ -51,53 +56,93 @@
                     <label>Tipo di Problema</label>
                     <select v-model="form.tipo" required>
                         <option value="" disabled>Seleziona una categoria...</option>
-                        <option value="Rifiuti abbandonati">Rifiuti abbandonati sul suolo pubblico</option>
-                        <option value="Cestino pieno">Cestino stradale pieno / strabordante</option>
-                        <option value="Campana danneggiata">Campana / Isola ecologica danneggiata</option>
-                        <option value="Mancata raccolta">Mancata raccolta porta a porta</option>
+                        <option value="Abbandono_Rifiuti">Rifiuti abbandonati sul suolo pubblico</option>
+                        <option value="Isola_Guasta">Campana / Isola ecologica danneggiata o piena</option>
+                        <option value="Altro">Altro / Mancata raccolta porta a porta</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Via / Piazza di Trento</label>
-                    <input type="text" v-model="form.via" placeholder="Esempio: Via Belenzani" required>
+                    <input type="text" v-model="form.via" placeholder="Esempio: Via Belenzani 10" required>
                 </div>
 
                 <div class="form-group">
                     <label>Descrizione Dettagliata</label>
-                    <textarea v-model="form.descrizione" rows="4" placeholder="Descrivi il problema (es: vicino al civico 10...)"></textarea>
+                    <textarea v-model="form.descrizione" rows="4" placeholder="Descrivi il problema per aiutare l'operatore..."></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit">
                     <i class="fa-solid fa-paper-plane"></i> INVIA SEGNALAZIONE
                 </button>
+
+                <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
             </form>
         </div>
     </div>
 
     <script>
-
         // --- BLOCCO DI SICUREZZA ---
-        // Controlla se l'utente ha il "pass" (token) nel browser
         const token = localStorage.getItem('token');
         if (!token) {
             alert("Devi effettuare l'accesso per utilizzare questo servizio.");
-            window.location.href = 'login.html'; // Lo sbatte fuori!
+            window.location.href = 'login.html'; 
         }
-         // ---------------------------
+        // ---------------------------
 
-const { createApp } = Vue;
+        const { createApp } = Vue;
 
-createApp({
+        createApp({
             data() {
                 return {
-                    form: { tipo: '', via: '', descrizione: '' }
+                    form: { tipo: '', via: '', descrizione: '' },
+                    messaggio: '',
+                    tipoMessaggio: ''
                 }
             },
             methods: {
-                submitSegnalazione() {
-                    alert("Segnalazione inviata con successo! (Simulazione)");
-                    window.location.href = 'main.html';
+                async submitSegnalazione() {
+                    this.messaggio = "Invio in corso...";
+                    this.tipoMessaggio = "";
+                    
+                    // Uniamo la via reale alla descrizione per non perdere il dato
+                    const testoUnito = `Indirizzo segnalato: ${this.form.via} --- Dettagli: ${this.form.descrizione || 'Nessun dettaglio aggiuntivo.'}`;
+
+                    const payload = {
+                        tipo: this.form.tipo,
+                        descrizione: testoUnito,
+                        via: "507f1f77bcf86cd799439011" // Il solito ID "passe-partout"
+                    };
+
+                    try {
+                        const response = await fetch('http://localhost:3000/api/v1/segnalazioni', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + token, // Presentiamo il token per dimostrare chi siamo
+                                'x-access-token': token
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            this.messaggio = "Segnalazione inviata con successo! Grazie per il tuo aiuto.";
+                            this.tipoMessaggio = "success";
+                            
+                            // Svuoto il form
+                            this.form = { tipo: '', via: '', descrizione: '' };
+                            
+                            // Torna alla home dopo 2 secondi
+                            setTimeout(() => { window.location.href = 'main.html'; }, 2000);
+                        } else {
+                            throw new Error("Errore durante l'invio");
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        this.messaggio = "Accesso negato o errore del server.";
+                        this.tipoMessaggio = "error";
+                    }
                 }
             }
         }).mount('#app');

@@ -118,6 +118,7 @@
     }
 
     .error-msg { color: #ff4757; font-size: 12px; text-align: center; }
+    .success-msg { color: var(--accent-green); font-size: 14px; text-align: center; margin-bottom: 10px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -164,11 +165,13 @@
             }
         },
         methods: {
-            // FUNZIONE PER IL LOGIN
+            // 🔐 FUNZIONE PER IL LOGIN
             async handleLogin() {
                 this.errorMessage = '';
+                this.successMessage = '';
                 try {
-                    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+                    // INDIRIZZO CORRETTO: /api/v1/auth
+                    const response = await fetch('http://localhost:3000/api/v1/auth', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(this.loginData)
@@ -176,25 +179,29 @@
 
                     const data = await response.json();
 
-                    if (!response.ok) throw new Error(data.error || 'Errore durante il login');
+                    // Il backend di Davide usa "success: false" e "message" per gli errori
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Errore durante il login');
+                    }
 
                     // Salviamo il Token e i dati utente nel browser
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    // Redirezione alla home
+                    // Redirezione alla mappa
                     window.location.href = 'main.html';
                 } catch (err) {
                     this.errorMessage = err.message;
                 }
             },
 
-            // FUNZIONE PER LA REGISTRAZIONE
+            // 📝 FUNZIONE PER LA REGISTRAZIONE
             async handleRegister() {
                 this.errorMessage = '';
                 this.successMessage = '';
                 try {
-                    const response = await fetch('http://localhost:3000/api/v1/auth/register', {
+                    // INDIRIZZO CORRETTO: /api/v1/utenti/register
+                    const response = await fetch('http://localhost:3000/api/v1/utenti/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(this.registerData)
@@ -202,17 +209,25 @@
 
                     const data = await response.json();
 
-                    if (!response.ok) throw new Error(data.error || 'Errore durante la registrazione');
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Errore durante la registrazione');
+                    }
 
+                    // VITTORIA! Utente creato nel database di MongoDB
                     this.successMessage = "Registrazione completata! Ora puoi fare il login.";
-                    this.mode = 'login'; // Torna al form di login automaticamente
+                    
+                    // Svuoto i campi della registrazione
+                    this.registerData = { nome: '', cognome: '', email: '', password: '' };
+                    
+                    // Passo automaticamente la schermata al Login per farlo entrare
+                    this.mode = 'login'; 
                 } catch (err) {
                     this.errorMessage = err.message;
                 }
             }
         }
     }).mount('#app');
-</script>
+</script>   
 
 </body>
 </html>

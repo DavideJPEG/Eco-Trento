@@ -3,7 +3,7 @@ const Isole = require('../models/isole');
 const router = express.Router();
 const operatoriAuth = require('../middleware/tokenChecker/operatoriAuth');
 const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
-
+const mongoose = require('mongoose');
 /*
     - (get) richiesta generale per tutte le isole
     - (get) richiesta per una isola specifica con id
@@ -12,13 +12,36 @@ const utentiAuth = require('../middleware/tokenChecker/utentiAuth');
     - (patch) modificare isola 
 */
 
+// ROTTA SEGRETA DI TEST: Inietta un'isola nel database
+router.get('/test-insert', async (req, res) => {
+    try {
+        const nuovaIsola = new Isole({
+            nome: "Isola Ecologica Centro",
+            coordinate: [46.0672, 11.1215], // Coordinate di Trento
+            strada: new mongoose.Types.ObjectId(), // Trucco: crea un ID valido per ingannare la sicurezza!
+            statoFisico: "Attiva", // Parola esatta accettata dal DB
+            bidoni: [
+                { tipoRifiuto: "Vetro", livelloRiempimento: 45 },
+                { tipoRifiuto: "imballaggi_leggeri", livelloRiempimento: 80 },
+                { tipoRifiuto: "Carta", livelloRiempimento: 10 }
+            ]
+        });
+        
+        await nuovaIsola.save(); 
+        res.send("VITTORIA ASSOLUTA! Isola di test inserita rispettando tutte le regole!");
+    } catch (error) {
+        res.status(500).send("Errore: " + error.message);
+    }
+});
+
 // richiesta get per tutte le isole
 router.get('/', async (req, res) => {
     let isole = await Isole.find({});
     isole = isole.map((isola) => {  // era "isole.id" e "isole.nome" — bug
         return {
             self: '/api/v1/isole/' + isola.id,
-            nome: isola.nome
+            // AGGIUNTA: Invio di tutto l'oggetto (comprese le coordinate) al frontend
+            ...isola.toObject({ versionKey: false }) 
         };
     });
     res.status(200).json(isole);

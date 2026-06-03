@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 // Sottoschema per lo stato dei singoli bidoni nell'isola
 const statoRifiutoSchema = new mongoose.Schema({
     tipoRifiuto: {

@@ -33,10 +33,9 @@
             background-color: var(--bg-main);
             color: #ffffff;
             margin: 0;
-            overflow: hidden; /* Blocca lo scroll dell'intera pagina */
+            overflow: hidden; 
         }
 
-        /* --- IL CONTENITORE VUE ORA GESTISCE IL LAYOUT A TUTTO SCHERMO --- */
         #app {
             display: flex;
             flex-direction: column;
@@ -44,7 +43,6 @@
             width: 100vw;
         }
 
-        /* --- NAVBAR --- */
         .navbar {
             display: flex;
             align-items: center;
@@ -65,7 +63,6 @@
             font-weight: 900;
             letter-spacing: 2px;
             background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -106,12 +103,11 @@
             box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
         }
 
-        /* --- LAYOUT MAPPA E SIDEBAR --- */
         .main-layout {
-            flex: 1; /* Prende tutto lo spazio rimanente sotto la navbar */
+            flex: 1; 
             position: relative;
             display: flex;
-            height: calc(100vh - 70px); /* Altezza precisa per Leaflet */
+            height: calc(100vh - 70px); 
         }
 
         #map {
@@ -143,7 +139,6 @@
             overflow-y: auto;
         }
 
-        /* --- STILI INTERNI ALLA SIDEBAR --- */
         .panel-header {
             font-size: 14px;
             text-transform: uppercase;
@@ -232,7 +227,6 @@
             font-size: 18px;
         }
 
-        /* --- STILI LEAFLET POPUP --- */
         .leaflet-popup-content-wrapper {
             background: #0c0c14 !important;
             color: white !important;
@@ -242,9 +236,9 @@
         }
         .leaflet-popup-tip {
             background: #0c0c14 !important;
-
         }
-        /* --- TOAST NOTIFICATIONS --- */
+
+        /* --- STILE TOAST NOTIFICATIONS (AGGIUNTO) --- */
         .toast-container {
             position: fixed;
             top: 80px;
@@ -276,15 +270,15 @@
 </head>
 <body>
 
-    <div class="toast-container">
-    <div v-for="toast in toasts" :key="toast.id" class="toast">
-        <i class="fa-solid fa-check-circle" style="color: var(--accent-green);"></i>
-        {{ toast.message }}
-    </div>
-</div>
-
     <div id="app">
         
+        <div class="toast-container">
+            <div v-for="toast in toasts" :key="toast.id" class="toast">
+                <i class="fa-solid fa-check-circle" style="color: var(--accent-green);"></i>
+                {{ toast.message }}
+            </div>
+        </div>
+
         <nav class="navbar">
             <div class="brand">
                 <i class="fa-solid fa-seedling"></i> ECOTRENTO
@@ -314,7 +308,7 @@
                 <div v-if="!selectedElement" class="placeholder-box">
                     <i class="fa-solid fa-mountain-city"></i>
                     <h3 style="color: white; margin-bottom: 8px; font-size: 18px;">Esplora Trento</h3>
-                    <p style="font-size: 14px; line-height: 1.5;">Clicca su un'area della mappa per vedere i giorni di raccolta della zona, o seleziona un'icona per i punti di raccolta speciali (Olio esausto, RAEE).</p>
+                    <p style="font-size: 14px; line-height: 1.5;">Clicca su un'area della mappa per vedere i giorni di raccolta della zona, o seleziona un'icona per i punti di raccolta speciali.</p>
                 </div>
 
                 <div v-if="selectedElement && selectedElement.type === 'quartiere'" style="display: flex; flex-direction: column; gap: 20px;">
@@ -346,42 +340,43 @@
 
                 <div v-if="selectedElement && selectedElement.type === 'speciale'" style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="panel-header" style="color: var(--accent-green)">
-                        <i class="fa-solid fa-location-crosshairs"></i> punto di raccolta speciale
+                        <i class="fa-solid fa-location-crosshairs"></i> Isola Ecologica
                     </div>
                     
                     <div class="special-header">
-                        <div class="special-icon-wrapper" :style="{ color: selectedElement.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff' }">
-                            <i :class="['fa-solid', selectedElement.categoria === 'Olio Esausto' ? 'fa-bottle-droplet' : 'fa-laptop-code']"></i>
+                        <div class="special-icon-wrapper" style="color: #00d2ff">
+                            <i class="fa-solid fa-recycle"></i>
                         </div>
                         <div>
                             <h2 style="font-size: 20px; font-weight: 800;">{{ selectedElement.nome }}</h2>
-                            <span style="font-size: 12px; color: var(--text-muted)">Categoria: {{ selectedElement.categoria }}</span>
+                            <span style="font-size: 12px; color: var(--text-muted)">Stato: {{ selectedElement.statoFisico || 'Attivo' }}</span>
                         </div>
                     </div>
 
                     <div class="info-card">
                         <div style="font-size: 14px; line-height: 1.6;">
-                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">📍 Dove si trova:</strong><br>{{ selectedElement.indirizzo }}</p>
-                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">🕒 Note d'uso:</strong><br>{{ selectedElement.note }}</p>
-                            <p><strong>🟢 Stato:</strong> {{ selectedElement.stato }}</p>
+                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">📍 Indirizzo:</strong><br>{{ selectedElement.strada || 'Non specificato' }}</p>
+                            <p><strong>🟢 Bidoni presenti:</strong> <span v-if="selectedElement.bidoni">{{ selectedElement.bidoni.join(', ') }}</span></p>
                         </div>
                     </div>
                 </div>
 
             </div>
         </div>
-    </div> <script>
+    </div> 
+
+    <script>
         const { createApp } = Vue;
 
         createApp({
             data() {
                 return {
-                    isLogged: false, // Gestione dinamica Navbar
+                    isLogged: false, 
                     map: null,
                     selectedElement: null,
-                    toasts: [],
-
-                    // --- I TUOI DATI ---
+                    
+                    toasts: [], // AGGIUNTO: array per gestire le notifiche a comparsa
+                    
                     quartieri: [
                         {
                             type: 'quartiere',
@@ -418,54 +413,34 @@
                             ]
                         }
                     ],
-                    puntiSpeciali: [
-                        {
-                            type: 'speciale',
-                            nome: "Raccolta Olio Alimentare - Piazza Fiera",
-                            categoria: "Olio Esausto",
-                            indirizzo: "Piazza Fiera, nei pressi delle mura storiche",
-                            note: "Inserire l'olio solo in bottiglie di plastica ben chiuse. Non sversare direttamente.",
-                            stato: "Disponibile 24h",
-                            coordinate: [46.0645, 11.1235]
-                        },
-                        {
-                            type: 'speciale',
-                            nome: "Punto Raccolta RAEE - Via Calepina",
-                            categoria: "Piccoli Elettrodomestici",
-                            indirizzo: "Via Calepina, vicino all'ecocampus",
-                            note: "Valido per telefoni, caricabatterie, phon e piccoli elettrodomestici max 25cm.",
-                            stato: "Attivo (Presidiato)",
-                            coordinate: [46.0665, 11.1245]
-                        }
-                    ]
+                    // AGGIUNTA API: L'array è stato SVUOTATO per accogliere i dati del Database
+                    puntiSpeciali: [] 
                 }
             },
             mounted() {
-                // Controllo Token al caricamento per la Navbar
                 this.isLogged = !!localStorage.getItem('token');
                 
-                // Inizializza Leaflet
                 this.initMap();
+                
+                // AGGIUNTA API: Avvia la chiamata al server al caricamento della pagina
+                this.scaricaPuntiDalServer();
             },
             methods: {
                 logout() {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                this.isLogged = false;
-                this.showToast("Logout effettuato correttamente."); 
-                setTimeout(() => { window.location.reload(); }, 1500); 
-            },
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    this.isLogged = false;
+                    this.showToast("Logout effettuato con successo."); // MODIFICATO per usare il Toast
+                    setTimeout(() => { window.location.reload(); }, 1500);
+                },
                 initMap() {
-                    // Centro mappa
                     this.map = L.map('map', { zoomControl: false }).setView([46.0640, 11.1240], 15);
                     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
                     
-                    // Stile Dark
                     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { 
                         attribution: '&copy; OpenStreetMap contributors' 
                     }).addTo(this.map);
 
-                    // Disegna i quartieri
                     this.quartieri.forEach(q => {
                         const polygonLayer = L.polygon(q.poligono, { 
                             color: q.coloreStile, 
@@ -484,20 +459,8 @@
                         });
                     });
 
-                    // Disegna i punti speciali
-                    this.puntiSpeciali.forEach(p => {
-                        const marker = L.circleMarker(p.coordinate, { 
-                            radius: 8, 
-                            color: p.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff', 
-                            fillColor: p.categoria === 'Olio Esausto' ? '#ffa502' : '#00d2ff', 
-                            fillOpacity: 0.8, 
-                            weight: 3 
-                        }).addTo(this.map);
-                        
-                        marker.on('click', () => {
-                            this.selectedElement = p;
-                        });
-                    });
+                    // NOTA: Da qui è stato tolto il vecchio disegno finto dei "puntiSpeciali", 
+                    // perché ora lo facciamo dentro scaricaPuntiDalServer() con i dati veri.
                 },
                 getIconClass(rifiuto) {
                     if (rifiuto.includes("Imballaggi")) return "fa-box-open icon-imballaggi";
@@ -505,14 +468,64 @@
                     if (rifiuto.includes("Organico")) return "fa-apple-whole icon-organico";
                     return "fa-trash-can icon-residuo";
                 },
+                
+                // --- NUOVI METODI AGGIUNTI PER LE NOTIFICHE E LE API ---
+                
                 showToast(message) {
-                const id = Date.now();
-                this.toasts.push({ id, message });
-                setTimeout(() => {
-                    this.toasts = this.toasts.filter(t => t.id !== id);
-                }, 3000); // Il messaggio scompare dopo 3 secondi
-            },
-        }
+                    const id = Date.now();
+                    this.toasts.push({ id, message });
+                    setTimeout(() => {
+                        this.toasts = this.toasts.filter(t => t.id !== id);
+                    }, 3000); 
+                },
+
+                async scaricaPuntiDalServer() {
+                    try {
+                        this.showToast("Sincronizzazione col database in corso...");
+                        
+                        // L'indirizzo esatto che abbiamo scovato nel file isole.js
+                        const URL_API = 'http://localhost:3000/api/v1/isole'; 
+                        
+                        const risposta = await fetch(URL_API);
+                        
+                        if (!risposta.ok) {
+                            throw new Error(`Errore Server: ${risposta.status}`);
+                        }
+
+                        // Trasformiamo i dati ricevuti in un formato leggibile
+                        const datiDalDatabase = await risposta.json();
+                        
+                        // Salviamo le isole scaricate nell'array di Vue
+                        this.puntiSpeciali = datiDalDatabase;
+
+                        // Cicliamo le isole VERE per disegnarle sulla mappa
+                        this.puntiSpeciali.forEach(punto => {
+                            // Controlliamo che l'isola abbia le coordinate inserite
+                            if (punto.coordinate && punto.coordinate.length === 2) {
+                                const marker = L.circleMarker(punto.coordinate, { 
+                                    radius: 8, 
+                                    color: '#00d2ff', 
+                                    fillColor: '#00d2ff', 
+                                    fillOpacity: 0.8, 
+                                    weight: 3 
+                                }).addTo(this.map);
+                                
+                                marker.on('click', () => {
+                                    // Aggiungiamo 'type' per far capire alla sidebar che è un punto speciale
+                                    punto.type = 'speciale'; 
+                                    this.selectedElement = punto;
+                                });
+                            }
+                        });
+
+                        this.showToast("Mappa aggiornata con le Isole reali!");
+
+                    } catch (errore) {
+                        console.error("Dettaglio errore fetch:", errore);
+                        this.showToast("Errore di connessione API. (CORS bloccato?)");
+                    }
+                }
+            }
         }).mount('#app');
     </script>
 </body>

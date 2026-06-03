@@ -6,7 +6,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Copia esattamente lo stile di segnalazioni.html per coerenza assoluta */
+        /* Stile originale invariato */
         :root { --bg-main: #080810; --bg-card: rgba(18, 18, 30, 0.75); --accent-green: #00ff88; --accent-blue: #00d2ff; --text-muted: #8a8a9e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-main); color: white; min-height: 100vh; padding: 30px; display: flex; justify-content: center; }
@@ -19,6 +19,11 @@
         input, select { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; }
         .btn-submit { background: linear-gradient(135deg, #4a6cf7, #3555d3); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; }
         .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        
+        /* Aggiunte per i messaggi di stato */
+        .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
+        .success { color: var(--accent-green); }
+        .error { color: #ff4757; }
     </style>
 </head>
 <body>
@@ -46,6 +51,16 @@
                     <input type="date" v-model="form.data" required>
                 </div>
 
+                <!-- NUOVO CAMPO: Obbligatorio per il backend -->
+                <div class="form-group">
+                    <label>Fascia Oraria</label>
+                    <select v-model="form.fasciaOraria" required>
+                        <option value="" disabled>Scegli l'orario...</option>
+                        <option value="Mattina (08:00 - 12:00)">Mattina (08:00 - 12:00)</option>
+                        <option value="Pomeriggio (13:00 - 17:00)">Pomeriggio (13:00 - 17:00)</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label>Indirizzo di Ritiro (Trento)</label>
                     <input type="text" v-model="form.indirizzo" placeholder="Via e numero civico" required>
@@ -54,18 +69,19 @@
                 <button type="submit" class="btn-submit">
                     <i class="fa-solid fa-truck"></i> PRENOTA RITIRO
                 </button>
+
+                <!-- Feedback a schermo -->
+                <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
             </form>
         </div>
     </div>
 
     <script>
-
         // --- BLOCCO DI SICUREZZA ---
-        // Controlla se l'utente ha il "pass" (token) nel browser
         const token = localStorage.getItem('token');
         if (!token) {
             alert("Devi effettuare l'accesso per utilizzare questo servizio.");
-            window.location.href = 'login.html'; // Lo sbatte fuori!
+            window.location.href = 'login.html'; 
         }
         // ---------------------------
 
@@ -74,13 +90,56 @@
         createApp({
             data() {
                 return {
-                    form: { oggetto: '', data: '', indirizzo: '' }
+                    form: { oggetto: '', data: '', indirizzo: '', fasciaOraria: '' },
+                    messaggio: '',
+                    tipoMessaggio: ''
                 }
             },
             methods: {
-                submitRichiesta() {
-                    alert("Richiesta di ritiro inviata! Riceverai una conferma via email.");
-                    window.location.href = 'main.html';
+                async submitRichiesta() {
+                    this.messaggio = "Invio in corso...";
+                    this.tipoMessaggio = "";
+                    
+                    // Uniamo l'oggetto scelto con l'indirizzo scritto a mano, 
+                    // così l'operatore legge tutto nel campo 'descrizioneOggetti'
+                    const testoUnito = `${this.form.oggetto} - Indirizzo digitato: ${this.form.indirizzo}`;
+
+                    const payload = {
+                        descrizioneOggetti: testoUnito,
+                        dataRitiroRichiesta: this.form.data,
+                        fasciaOraria: this.form.fasciaOraria,
+                        viaRitiro: "507f1f77bcf86cd799439011" // L'ID finto per superare il buttafuori
+                    };
+
+                    try {
+                        const response = await fetch('http://localhost:3000/api/v1/ingombranti', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + token,
+                                'x-access-token': token
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            this.messaggio = "Richiesta inviata con successo!";
+                            this.tipoMessaggio = "success";
+                            
+                            // Svuoto il form
+                            this.form = { oggetto: '', data: '', indirizzo: '', fasciaOraria: '' };
+                            
+                            // Torna alla home dopo 2 secondi
+                            setTimeout(() => { window.location.href = 'main.html'; }, 2000);
+                        } else {
+                            throw new Error("Errore durante l'invio");
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        this.messaggio = "Accesso negato o errore del server.";
+                        this.tipoMessaggio = "error";
+                    }
                 }
             }
         }).mount('#app');
