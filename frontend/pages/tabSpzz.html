@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Miei Orari - ECOTRENTO</title>
+    <title>Calendario Raccolta - ECOTRENTO</title>
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
@@ -19,12 +18,7 @@
             --text-muted: #8a8a9e;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
 
         body {
             background-color: var(--bg-main);
@@ -37,23 +31,17 @@
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 600px; /* Più stretto per una singola card elegante */
             display: flex;
             flex-direction: column;
             gap: 25px;
+            margin-top: 5vh;
         }
 
-        /* --- HEADER CONTROL PANELS --- */
         .header-area {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--bg-card);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-glass);
-            padding: 20px 30px;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .back-btn {
@@ -65,131 +53,105 @@
             font-size: 14px;
             font-weight: 600;
             transition: 0.3s;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid transparent;
         }
 
-        .back-btn:hover {
-            color: #ffffff;
-            background: rgba(255,255,255,0.04);
-            border-color: var(--border-glass);
+        .back-btn:hover { color: #ffffff; }
+
+        /* --- CARD PRINCIPALE --- */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .card h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--accent-blue);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
         }
 
         .zone-selector {
-            background: #121220;
+            background: rgba(255,255,255,0.03);
             color: white;
-            border: 1px solid var(--border-glass);
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
             cursor: pointer;
             outline: none;
             transition: 0.3s;
+            width: 100%;
         }
 
-        .zone-selector:focus {
-            border-color: var(--accent-blue);
-        }
+        .zone-selector:focus { border-color: var(--accent-green); background: rgba(255,255,255,0.06); }
 
-        /* --- GRID TIMELINE SETTIMANALE --- */
-        .timeline-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .day-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-glass);
+        /* --- ZONA PDF --- */
+        .pdf-area {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
             border-radius: 16px;
-            padding: 20px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 15px;
-            transition: transform 0.3s;
         }
 
-        .day-card:hover {
-            transform: translateY(-2px);
+        .pdf-icon {
+            font-size: 50px;
+            color: #ff4757;
+            filter: drop-shadow(0 0 10px rgba(255, 71, 87, 0.3));
         }
 
-        .day-title {
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .day-title span.today-badge {
-            font-size: 11px;
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent-green);
-            padding: 2px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-
-        .rifiuto-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04);
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-green), #00b894);
+            color: #080810;
+            text-decoration: none;
+            padding: 15px 30px;
             border-radius: 12px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            font-weight: 800;
+            font-size: 15px;
+            transition: 0.3s;
+            width: 100%;
+            cursor: pointer;
+            border: none;
         }
 
-        .rifiuto-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
         }
-
-        .rifiuto-info i {
-            font-size: 18px;
-        }
-
-        .rifiuto-name {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .rifiuto-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .time-limit {
-            font-family: monospace;
-            font-size: 12px;
-            background: rgba(255,255,255,0.05);
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .no-waste {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-style: italic;
-            text-align: center;
-            margin: auto 0;
-            padding: 20px 0;
-        }
-
-        /* Colori Icone */
-        .color-imballaggi { color: #eccc68; }
-        .color-carta { color: #1e90ff; }
-        .color-organico { color: #ffa502; }
-        .color-residuo { color: #747d8c; }
+        
+        .loading-text { color: var(--text-muted); font-size: 14px; }
     </style>
 </head>
 <body>
@@ -197,51 +159,38 @@
     <div id="app" class="container">
         
         <header class="header-area">
-            <a class="back-btn" href="main.html">
-                <i class="fa-solid fa-arrow-left"></i> Torna alla Mappa
-            </a>
-            
-            <div style="display:flex; align-items:center; gap:12px;">
-                <label style="font-size:14px; color: var(--text-muted);">Visualizza Zona:</label>
-                <select class="zone-selector" v-model="currentZona" @change="updateCalendar">
-                    <option value="Oltrefersina">Zona Oltrefersina / Clarina</option>
-                    <option value="Centro">Centro Storico</option>
-                </select>
-            </div>
+            <a class="back-btn" href="main.html"><i class="fa-solid fa-arrow-left"></i> Torna alla Mappa</a>
         </header>
 
-        <div style="text-align: center; margin: 10px 0;">
-            <h1 style="font-size: 28px; font-weight: 800; letter-spacing: 1px;">Calendario di Raccolta Settimanale</h1>
-            <p style="color: var(--text-muted); margin-top: 5px;">Mostrato in base alla circoscrizione selezionata</p>
-        </div>
+        <div class="card">
+            <h1><i class="fa-regular fa-calendar-days"></i> Il Tuo Calendario</h1>
+            <p class="subtitle">Seleziona la tua circoscrizione per consultare o stampare il calendario ufficiale della raccolta differenziata.</p>
 
-        <div class="timeline-grid">
-            
-            <div v-for="giorno in giorniSettimana" :key="giorno.nome" class="day-card">
-                <div class="day-title">
-                    <span>{{ giorno.nome }}</span>
-                    <span v-if="isToday(giorno.nome)" class="today-badge">Oggi</span>
-                </div>
+            <div class="form-group">
+                <label>Quartiere di Trento</label>
+                <select class="zone-selector" v-model="selectedQuartiereUrl" @change="fetchPdfLink">
+                    <option v-if="quartieri.length === 0 && !isMocking" value="">Caricamento zone in corso...</option>
+                    
+                    <!-- Cicla i quartieri trovati (il value sarà il link all'API del calendario) -->
+                    <option v-for="q in quartieri" :key="q.self" :value="q.calendario">
+                        {{ q.nome }}
+                    </option>
+                </select>
+            </div>
 
-                <div v-if="getRaccolteGiorno(giorno.nome).length > 0" style="display:flex; flex-direction:column; gap:10px;">
-                    <div v-for="raccolta in getRaccolteGiorno(giorno.nome)" :key="raccolta.rifiuto" class="rifiuto-item">
-                        <div class="rifiuto-info">
-                            <i :class="['fa-solid', getIconClass(raccolta.rifiuto), getColorClass(raccolta.rifiuto)]"></i>
-                            <div>
-                                <div class="rifiuto-name">{{ raccolta.rifiuto }}</div>
-                                <div class="rifiuto-desc">{{ raccolta.desc }}</div>
-                            </div>
-                        </div>
-                        <div class="time-limit">
-                            <i class="fa-regular fa-clock"></i> {{ raccolta.orario }}
-                        </div>
-                    </div>
-                </div>
+            <div v-if="isLoading" class="pdf-area">
+                <i class="fa-solid fa-spinner fa-spin pdf-icon" style="color: var(--accent-blue);"></i>
+                <span class="loading-text">Recupero documento in corso...</span>
+            </div>
 
-                <div v-else class="no-waste">
-                    <i class="fa-solid fa-calendar-check" style="margin-right: 5px; color: var(--accent-green)"></i> Nessuna esposizione prevista
-                </div>
-
+            <div v-else-if="pdfLink" class="pdf-area">
+                <i class="fa-regular fa-file-pdf pdf-icon"></i>
+                <h3 style="font-size: 16px;">Calendario_Raccolta.pdf</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Formato PDF Stampabile</p>
+                
+                <a :href="pdfLink" target="_blank" class="btn-primary">
+                    <i class="fa-solid fa-print"></i> Apri e Stampa
+                </a>
             </div>
 
         </div>
@@ -254,54 +203,71 @@
         createApp({
             data() {
                 return {
-                    currentZona: 'Oltrefersina', // Valore di default coerente con la tua via
-                    giorniSettimana: [
-                        { nome: 'Lunedì' }, { nome: 'Martedì' }, { nome: 'Mercoledì' },
-                        { nome: 'Giovedì' }, { nome: 'Venerdì' }, { nome: 'Sabato' }
-                    ],
-                    // DATABASE REALE DEL PORTA A PORTA DI TRENTO (Strutturato per essere dinamico)
-                    calendariorifiuti: {
-                        Oltrefersina: [
-                            { giorno: 'Lunedì', rifiuto: 'Organico', orario: 'Entro 11:00', desc: 'Svuotamento mastello marrone' },
-                            { giorno: 'Martedì', rifiuto: 'Imballaggi Leggeri', orario: 'Entro 13:00', desc: 'Esporre Sacco Azzurro' }, // Coerente al 100%!
-                            { giorno: 'Mercoledì', rifiuto: 'Organico', orario: 'Entro 11:00', desc: 'Svuotamento mastello marrone' },
-                            { giorno: 'Giovedì', rifiuto: 'Carta', orario: 'Entro 12:00', desc: 'Esporre sacco/mastello bianco' },
-                            { giorno: 'Venerdì', rifiuto: 'Organico', orario: 'Entro 11:00', desc: 'Svuotamento mastello marrone' },
-                            { giorno: 'Sabato', rifiuto: 'Secco Residuo', orario: 'Entro 13:00', desc: 'Svuotamento mastello verde scuro' }
-                        ],
-                        Centro: [
-                            { giorno: 'Lunedì', rifiuto: 'Imballaggi Leggeri', orario: 'Entro 09:00', desc: 'Esporre Sacco Azzurro' },
-                            { giorno: 'Martedì', rifiuto: 'Organico', orario: 'Entro 08:30', desc: 'Svuotamento mastello marrone' },
-                            { giorno: 'Mercoledì', rifiuto: 'Carta', orario: 'Entro 09:00', desc: 'Esporre sacco/mastello bianco' },
-                            { giorno: 'Giovedì', rifiuto: 'Organico', orario: 'Entro 08:30', desc: 'Svuotamento mastello marrone' },
-                            { giorno: 'Venerdì', rifiuto: 'Secco Residuo', orario: 'Entro 09:00', desc: 'Svuotamento mastello verde scuro' },
-                            { giorno: 'Sabato', rifiuto: 'Organico', orario: 'Entro 08:30', desc: 'Svuotamento mastello marrone' }
-                        ]
-                    }
+                    quartieri: [],
+                    selectedQuartiereUrl: '', // Conterrà es: '/api/v1/quartieri/123/calendario'
+                    pdfLink: '',
+                    isLoading: false,
+                    isMocking: false // Ci dice se stiamo usando i dati finti di emergenza
                 }
             },
+            mounted() {
+                this.fetchQuartieri();
+            },
             methods: {
-                // Filtra il calendario in base al giorno e alla circoscrizione attiva
-                getRaccolteGiorno(giornoNome) {
-                    return this.calendariorifiuti[this.currentZona].filter(r => r.giorno === giornoNome);
+                // 1. Scarichiamo l'elenco dei quartieri
+                async fetchQuartieri() {
+                    try {
+                        const response = await fetch('http://localhost:3000/api/v1/quartieri');
+                        const data = await response.json();
+
+                        if (data && data.length > 0) {
+                            this.quartieri = data;
+                            // Seleziono il primo di default e ne scarico il PDF
+                            this.selectedQuartiereUrl = data[0].calendario;
+                            this.fetchPdfLink();
+                        } else {
+                            throw new Error("Nessun quartiere nel database");
+                        }
+                    } catch (err) {
+                        console.warn("Database vuoto o irraggiungibile. Attivo i dati finti per farti testare l'UI!");
+                        this.abilitaDatiFinti();
+                    }
                 },
-                getIconClass(rifiuto) {
-                    if (rifiuto.includes("Imballaggi")) return "fa-box-open";
-                    if (rifiuto.includes("Carta")) return "fa-file-lines";
-                    if (rifiuto.includes("Organico")) return "fa-apple-whole";
-                    return "fa-trash-can";
+
+                // 2. Quando selezioniamo un quartiere, scarichiamo il link del suo calendario
+                async fetchPdfLink() {
+                    // Se stiamo usando i dati finti, saltiamo questo blocco
+                    if (this.isMocking) {
+                        this.pdfLink = 'https://www.dolomitiambiente.it/content/download/12411/129994/version/1/file/Trento_Centro.pdf';
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    this.pdfLink = '';
+
+                    try {
+                        const response = await fetch('http://localhost:3000' + this.selectedQuartiereUrl);
+                        const data = await response.json();
+                        
+                        if(data.link) {
+                            this.pdfLink = data.link;
+                        }
+                    } catch (err) {
+                        console.error("Errore nel caricamento del calendario", err);
+                    } finally {
+                        this.isLoading = false;
+                    }
                 },
-                getColorClass(rifiuto) {
-                    if (rifiuto.includes("Imballaggi")) return "color-imballaggi";
-                    if (rifiuto.includes("Carta")) return "color-carta";
-                    if (rifiuto.includes("Organico")) return "color-organico";
-                    return "color-residuo";
-                },
-                // Calcola dinamicamente se è il giorno corrente per mostrare il badge "Oggi"
-                isToday(giornoNome) {
-                    const giorniEng = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-                    const oggiIndex = new Date().getDay();
-                    return giorniEng[oggiIndex] === giornoNome;
+
+                // 3. Il Salvagente (Mocking)
+                abilitaDatiFinti() {
+                    this.isMocking = true;
+                    this.quartieri = [
+                        { nome: 'Centro Storico (Dati Finti)', calendario: 'fake1' },
+                        { nome: 'Oltrefersina (Dati Finti)', calendario: 'fake2' }
+                    ];
+                    this.selectedQuartiereUrl = 'fake1';
+                    this.fetchPdfLink();
                 }
             }
         }).mount('#app');
