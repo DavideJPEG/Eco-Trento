@@ -4,125 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ECOTN - Login & Registrazione</title>
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <link rel="stylesheet" href="../css/global.css" />
+
     <style>
-    :root {
-        --bg-main: #080810;
-        --accent-blue: #4a6cf7;
-        --accent-green: #00ff88;
-        --text-muted: #8a8a9e;
-    }
+        body { 
+            /* Sovrascriviamo lo sfondo base con il gradiente profondo per il login */
+            background: radial-gradient(circle at center, #1a1a2e 0%, #080810 100%);
+            overflow: hidden;
+            align-items: center; /* Centra verticalmente il contenitore */
+        }
 
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+        /* Decorazione: un cerchio sfocato che brilla dietro la card */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 400px; height: 400px;
+            background: var(--accent-blue);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: 0;
+        }
 
-    body { 
-        height:100vh; 
-        display:flex; 
-        justify-content:center; 
-        align-items:center; 
-        /* Sfondo con gradiente profondo per dare profondità */
-        background: radial-gradient(circle at center, #1a1a2e 0%, #080810 100%);
-        overflow: hidden;
-    }
+        .login-container { 
+            position: relative;
+            z-index: 1;
+            width: 400px; 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+        }
 
-    /* Decorazione: un cerchio sfocato che brilla dietro la card */
-    body::before {
-        content: "";
-        position: absolute;
-        width: 400px; height: 400px;
-        background: var(--accent-blue);
-        filter: blur(150px);
-        opacity: 0.15;
-        z-index: 0;
-    }
+        .login-container h1 { 
+            margin-bottom: 30px; 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: 900;
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    .container { 
-        position: relative;
-        z-index: 1;
-        width:400px; 
-        background: rgba(255, 255, 255, 0.03); 
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        padding:40px; 
-        border-radius:24px; 
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
-    }
+        .tabs { 
+            display: flex; 
+            margin-bottom: 25px; 
+            background: rgba(0,0,0,0.2);
+            padding: 5px;
+            border-radius: 12px;
+        }
 
-    h1 { 
-        margin-bottom:30px; 
-        text-align: center; 
-        font-size: 28px; 
-        font-weight: 900;
-        letter-spacing: 3px;
-        background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
+        .tabs button { 
+            flex: 1; padding: 10px; border: none; cursor: pointer; 
+            background: transparent; color: var(--text-muted);
+            font-size: 14px; font-weight: 600;
+            transition: 0.3s; border-radius: 10px;
+        }
 
-    .tabs { 
-        display:flex; 
-        margin-bottom:25px; 
-        background: rgba(0,0,0,0.2);
-        padding: 5px;
-        border-radius: 12px;
-    }
+        .tabs button.active { 
+            background: var(--accent-blue); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
 
-    .tabs button { 
-        flex:1; padding:10px; border:none; cursor:pointer; 
-        background:transparent; color: var(--text-muted);
-        font-size: 14px; font-weight: 600;
-        transition: 0.3s; border-radius: 10px;
-    }
+        .form { display: flex; flex-direction: column; gap: 15px; }
 
-    .tabs button.active { 
-        background: var(--accent-blue); 
-        color:white; 
-        box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
-    }
+        .form input { 
+            padding: 14px; 
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            color: white;
+            font-size: 14px; 
+            outline: none;
+            transition: 0.3s;
+        }
 
-    .form { display:flex; flex-direction:column; gap: 15px; }
+        .form input:focus {
+            border-color: var(--accent-blue);
+            background: rgba(255,255,255,0.08);
+        }
 
-    .form input { 
-        padding:14px; 
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1); 
-        border-radius:12px; 
-        color: white;
-        font-size:14px; 
-        outline: none;
-        transition: 0.3s;
-    }
+        .form button.submit-btn { 
+            margin-top: 10px;
+            padding: 14px; 
+            border: none; 
+            border-radius: 12px; 
+            background: linear-gradient(135deg, var(--accent-blue), #3555d3); 
+            color: white; 
+            font-size: 16px; 
+            cursor: pointer; 
+            font-weight: 700;
+            transition: 0.3s;
+        }
 
-    .form input:focus {
-        border-color: var(--accent-blue);
-        background: rgba(255,255,255,0.08);
-    }
+        .form button.submit-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 108, 247, 0.4);
+        }
 
-    .form button.submit-btn { 
-        margin-top: 10px;
-        padding:14px; 
-        border:none; 
-        border-radius:12px; 
-        background: linear-gradient(135deg, var(--accent-blue), #3555d3); 
-        color:white; 
-        font-size:16px; 
-        cursor:pointer; 
-        font-weight: 700;
-        transition: 0.3s;
-    }
-
-    .form button.submit-btn:hover { 
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(74, 108, 247, 0.4);
-    }
-
-    .error-msg { color: #ff4757; font-size: 12px; text-align: center; }
-</style>
+        .error-msg { color: #ff4757; font-size: 12px; text-align: center; margin-bottom: 10px; font-weight: bold; }
+        .success-msg { color: var(--accent-green); font-size: 14px; text-align: center; margin-bottom: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-<div id="app" class="container">
+<div id="app" class="login-container">
     <h1>ECOTRENTO</h1>
 
     <div class="tabs">
@@ -149,70 +142,7 @@
 
 </div>
 
-<script>
-    const { createApp } = Vue;
-
-    createApp({
-        data() {
-            return {
-                mode: 'login', // può essere 'login' o 'register'
-                errorMessage: '',
-                successMessage: '',
-                // Dati collegati ai campi input (v-model)
-                loginData: { email: '', password: '' },
-                registerData: { nome: '', cognome: '', email: '', password: '' }
-            }
-        },
-        methods: {
-            // FUNZIONE PER IL LOGIN
-            async handleLogin() {
-                this.errorMessage = '';
-                try {
-                    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.loginData)
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) throw new Error(data.error || 'Errore durante il login');
-
-                    // Salviamo il Token e i dati utente nel browser
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-
-                    // Redirezione alla home
-                    window.location.href = 'main.html';
-                } catch (err) {
-                    this.errorMessage = err.message;
-                }
-            },
-
-            // FUNZIONE PER LA REGISTRAZIONE
-            async handleRegister() {
-                this.errorMessage = '';
-                this.successMessage = '';
-                try {
-                    const response = await fetch('http://localhost:3000/api/v1/auth/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.registerData)
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) throw new Error(data.error || 'Errore durante la registrazione');
-
-                    this.successMessage = "Registrazione completata! Ora puoi fare il login.";
-                    this.mode = 'login'; // Torna al form di login automaticamente
-                } catch (err) {
-                    this.errorMessage = err.message;
-                }
-            }
-        }
-    }).mount('#app');
-</script>
+<script src="../scripts/login.js"></script>
 
 </body>
 </html>

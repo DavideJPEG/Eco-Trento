@@ -4,17 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Segnalazioni - ECOTRENTO</title>
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <link rel="stylesheet" href="../css/global.css" />
+
     <style>
-        /* Copia gli stessi stili :root e globali di main.html per coerenza */
-        :root { --bg-main: #080810; --bg-card: rgba(18, 18, 30, 0.75); --accent-green: #00ff88; --accent-blue: #00d2ff; --text-muted: #8a8a9e; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-main); color: white; min-height: 100vh; padding: 30px; display: flex; justify-content: center; }
-        
-        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        
+        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         h1 { font-size: 24px; margin-bottom: 5px; font-weight: 800; }
         p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
 
@@ -29,17 +26,21 @@
         
         .btn-submit {
             background: linear-gradient(135deg, var(--accent-green), #00b894);
-            color: #080810; border: none; padding: 15px; border-radius: 12px;
+            color: #080810; border: none; padding: 15px; border-radius: 12px; width: 100%;
             font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px;
         }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
 
-        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.3s; }
         .back-link:hover { color: white; }
+
+        .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
+        .success { color: var(--accent-green); }
+        .error { color: var(--danger-red); }
     </style>
 </head>
 <body>
-    <div id="app" class="container">
+    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;">
         <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
         
         <div class="card">
@@ -71,36 +72,14 @@
                 <button type="submit" class="btn-submit">
                     <i class="fa-solid fa-paper-plane"></i> INVIA SEGNALAZIONE
                 </button>
+
+                <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
             </form>
         </div>
     </div>
 
-    <script>
-
-        // --- BLOCCO DI SICUREZZA ---
-        // Controlla se l'utente ha il "pass" (token) nel browser
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("Devi effettuare l'accesso per utilizzare questo servizio.");
-            window.location.href = 'login.html'; // Lo sbatte fuori!
-        }
-         // ---------------------------
-
-const { createApp } = Vue;
-
-createApp({
-            data() {
-                return {
-                    form: { tipo: '', via: '', descrizione: '' }
-                }
-            },
-            methods: {
-                submitSegnalazione() {
-                    alert("Segnalazione inviata con successo! (Simulazione)");
-                    window.location.href = 'main.html';
-                }
-            }
-        }).mount('#app');
-    </script>
+    <script src="../common/security.js"></script>
+    
+    <script src="../scripts/segnalazioni.js"></script>
 </body>
 </html>

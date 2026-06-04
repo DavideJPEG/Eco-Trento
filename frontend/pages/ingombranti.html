@@ -2,27 +2,33 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ritiro Ingombranti - ECOTRENTO</title>
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <link rel="stylesheet" href="../css/global.css" />
+
     <style>
-        /* Copia esattamente lo stile di segnalazioni.html per coerenza assoluta */
-        :root { --bg-main: #080810; --bg-card: rgba(18, 18, 30, 0.75); --accent-green: #00ff88; --accent-blue: #00d2ff; --text-muted: #8a8a9e; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-main); color: white; min-height: 100vh; padding: 30px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        h1 { font-size: 24px; margin-bottom: 5px; font-weight: 800; }
+        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .card h1 { font-size: 24px; margin-bottom: 5px; font-weight: 800; }
         p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
         label { font-size: 13px; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 1px; }
         input, select { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; }
-        .btn-submit { background: linear-gradient(135deg, #4a6cf7, #3555d3); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; }
-        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .btn-submit { background: linear-gradient(135deg, #4a6cf7, #3555d3); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(74, 108, 247, 0.4); }
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.3s; }
+        .back-link:hover { color: white; }
+        
+        .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
+        .success { color: var(--accent-green); }
+        .error { color: var(--danger-red); }
     </style>
 </head>
 <body>
-    <div id="app" class="container">
+    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;">
         <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
         
         <div class="card">
@@ -47,6 +53,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Fascia Oraria</label>
+                    <select v-model="form.fasciaOraria" required>
+                        <option value="" disabled>Scegli l'orario...</option>
+                        <option value="Mattina (08:00 - 12:00)">Mattina (08:00 - 12:00)</option>
+                        <option value="Pomeriggio (13:00 - 17:00)">Pomeriggio (13:00 - 17:00)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Indirizzo di Ritiro (Trento)</label>
                     <input type="text" v-model="form.indirizzo" placeholder="Via e numero civico" required>
                 </div>
@@ -54,36 +69,14 @@
                 <button type="submit" class="btn-submit">
                     <i class="fa-solid fa-truck"></i> PRENOTA RITIRO
                 </button>
+
+                <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
             </form>
         </div>
     </div>
 
-    <script>
-
-        // --- BLOCCO DI SICUREZZA ---
-        // Controlla se l'utente ha il "pass" (token) nel browser
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("Devi effettuare l'accesso per utilizzare questo servizio.");
-            window.location.href = 'login.html'; // Lo sbatte fuori!
-        }
-        // ---------------------------
-
-        const { createApp } = Vue;
-
-        createApp({
-            data() {
-                return {
-                    form: { oggetto: '', data: '', indirizzo: '' }
-                }
-            },
-            methods: {
-                submitRichiesta() {
-                    alert("Richiesta di ritiro inviata! Riceverai una conferma via email.");
-                    window.location.href = 'main.html';
-                }
-            }
-        }).mount('#app');
-    </script>
+    <script src="../common/security.js"></script>
+    
+    <script src="../scripts/ingombranti.js"></script>
 </body>
 </html>

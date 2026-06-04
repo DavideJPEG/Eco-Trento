@@ -8,158 +8,57 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
+    <link rel="stylesheet" href="../css/global.css" />
+
     <style>
-        :root {
-            --bg-main: #080810;
-            --bg-card: rgba(18, 18, 30, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --accent-green: #00ff88;
-            --accent-blue: #00d2ff;
-            --text-muted: #8a8a9e;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-
-        body {
-            background-color: var(--bg-main);
-            color: #ffffff;
-            min-height: 100vh;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px; /* Più stretto per una singola card elegante */
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            margin-top: 5vh;
-        }
-
-        .header-area {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .header-area { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 
         .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: 0.3s;
+            display: flex; align-items: center; gap: 8px; color: var(--text-muted);
+            text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.3s;
         }
-
         .back-btn:hover { color: #ffffff; }
 
-        /* --- CARD PRINCIPALE --- */
         .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            text-align: center;
+            background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass);
+            border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;
         }
 
-        .card h1 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: var(--accent-blue);
-        }
+        .card h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--accent-blue); }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; line-height: 1.5; }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 30px;
-            text-align: left;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-        }
+        .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; text-align: left; }
+        .form-group label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
 
         .zone-selector {
-            background: rgba(255,255,255,0.03);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 15px;
-            cursor: pointer;
-            outline: none;
-            transition: 0.3s;
-            width: 100%;
+            background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 12px; font-size: 15px; cursor: pointer; outline: none; transition: 0.3s; width: 100%;
         }
-
         .zone-selector:focus { border-color: var(--accent-green); background: rgba(255,255,255,0.06); }
 
-        /* --- ZONA PDF --- */
         .pdf-area {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px;
         }
 
-        .pdf-icon {
-            font-size: 50px;
-            color: #ff4757;
-            filter: drop-shadow(0 0 10px rgba(255, 71, 87, 0.3));
-        }
+        .pdf-icon { font-size: 50px; color: #ff4757; filter: drop-shadow(0 0 10px rgba(255, 71, 87, 0.3)); }
 
         .btn-primary {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--accent-green), #00b894);
-            color: #080810;
-            text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 15px;
-            transition: 0.3s;
-            width: 100%;
-            cursor: pointer;
-            border: none;
+            display: inline-block; background: linear-gradient(135deg, var(--accent-green), #00b894);
+            color: #080810; text-decoration: none; padding: 15px 30px; border-radius: 12px;
+            font-weight: 800; font-size: 15px; transition: 0.3s; width: 100%; cursor: pointer; border: none;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
         
         .loading-text { color: var(--text-muted); font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div id="app" class="container">
+    <div id="app" class="container" style="max-width: 600px; margin-top: 5vh;">
         
         <header class="header-area">
-            <a class="back-btn" href="main.html"><i class="fa-solid fa-arrow-left"></i> Torna alla Mappa</a>
+            <a class="back-btn" href="main.html"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
         </header>
 
         <div class="card">
@@ -171,7 +70,6 @@
                 <select class="zone-selector" v-model="selectedQuartiereUrl" @change="fetchPdfLink">
                     <option v-if="quartieri.length === 0 && !isMocking" value="">Caricamento zone in corso...</option>
                     
-                    <!-- Cicla i quartieri trovati (il value sarà il link all'API del calendario) -->
                     <option v-for="q in quartieri" :key="q.self" :value="q.calendario">
                         {{ q.nome }}
                     </option>
@@ -197,80 +95,7 @@
 
     </div>
 
-    <script>
-        const { createApp } = Vue;
+    <script src="../scripts/tabSpzz.js"></script>
 
-        createApp({
-            data() {
-                return {
-                    quartieri: [],
-                    selectedQuartiereUrl: '', // Conterrà es: '/api/v1/quartieri/123/calendario'
-                    pdfLink: '',
-                    isLoading: false,
-                    isMocking: false // Ci dice se stiamo usando i dati finti di emergenza
-                }
-            },
-            mounted() {
-                this.fetchQuartieri();
-            },
-            methods: {
-                // 1. Scarichiamo l'elenco dei quartieri
-                async fetchQuartieri() {
-                    try {
-                        const response = await fetch('http://localhost:3000/api/v1/quartieri');
-                        const data = await response.json();
-
-                        if (data && data.length > 0) {
-                            this.quartieri = data;
-                            // Seleziono il primo di default e ne scarico il PDF
-                            this.selectedQuartiereUrl = data[0].calendario;
-                            this.fetchPdfLink();
-                        } else {
-                            throw new Error("Nessun quartiere nel database");
-                        }
-                    } catch (err) {
-                        console.warn("Database vuoto o irraggiungibile. Attivo i dati finti per farti testare l'UI!");
-                        this.abilitaDatiFinti();
-                    }
-                },
-
-                // 2. Quando selezioniamo un quartiere, scarichiamo il link del suo calendario
-                async fetchPdfLink() {
-                    // Se stiamo usando i dati finti, saltiamo questo blocco
-                    if (this.isMocking) {
-                        this.pdfLink = 'https://www.dolomitiambiente.it/content/download/12411/129994/version/1/file/Trento_Centro.pdf';
-                        return;
-                    }
-
-                    this.isLoading = true;
-                    this.pdfLink = '';
-
-                    try {
-                        const response = await fetch('http://localhost:3000' + this.selectedQuartiereUrl);
-                        const data = await response.json();
-                        
-                        if(data.link) {
-                            this.pdfLink = data.link;
-                        }
-                    } catch (err) {
-                        console.error("Errore nel caricamento del calendario", err);
-                    } finally {
-                        this.isLoading = false;
-                    }
-                },
-
-                // 3. Il Salvagente (Mocking)
-                abilitaDatiFinti() {
-                    this.isMocking = true;
-                    this.quartieri = [
-                        { nome: 'Centro Storico (Dati Finti)', calendario: 'fake1' },
-                        { nome: 'Oltrefersina (Dati Finti)', calendario: 'fake2' }
-                    ];
-                    this.selectedQuartiereUrl = 'fake1';
-                    this.fetchPdfLink();
-                }
-            }
-        }).mount('#app');
-    </script>
 </body>
 </html>

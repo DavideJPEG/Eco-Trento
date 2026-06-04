@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida a Trento - ECOTRENTO</title>
+    
+    <!-- Librerie Esterne -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- CSS Globale -->
+    <link rel="stylesheet" href="../css/global.css" />
+
+    <!-- CSS Specifico della Guida -->
+    <style>
+        .container { padding-bottom: 50px; }
+
+        /* HEADER */
+        .header-area { text-align: center; margin-top: 20px; margin-bottom: 20px; }
+        
+        .header-area h1 {
+            font-size: 36px; font-weight: 900;
+            background: linear-gradient(45deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .header-area p {
+            color: var(--text-muted); font-size: 16px;
+            line-height: 1.6; max-width: 600px; margin: 0 auto;
+        }
+
+        .back-link {
+            color: var(--text-muted); text-decoration: none; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px;
+            transition: 0.3s; background: var(--bg-card); padding: 10px 20px;
+            border-radius: 12px; border: 1px solid var(--border-glass);
+        }
+        .back-link:hover { color: white; background: rgba(255,255,255,0.05); }
+
+        /* GRIGLIA DELLE CARD */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+
+        .card {
+            background: var(--bg-card); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass); border-radius: 20px;
+            padding: 35px; display: flex; flex-direction: column;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+
+        /* Decorazione di sfondo per le card */
+        .card::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 150px; height: 150px; background: var(--accent-blue);
+            filter: blur(80px); opacity: 0.1; border-radius: 50%;
+        }
+        .card.green-glow::before { background: var(--accent-green); }
+
+        .card-icon { font-size: 35px; margin-bottom: 20px; display: inline-block; }
+        .color-blue { color: var(--accent-blue); }
+        .color-green { color: var(--accent-green); }
+
+        .card h2 { font-size: 22px; margin-bottom: 15px; font-weight: 800; }
+        
+        .card p {
+            color: var(--text-muted); font-size: 14px; line-height: 1.7;
+            margin-bottom: 25px; flex-grow: 1;
+        }
+
+        .btn-link {
+            display: block; text-align: center; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1); color: white; text-decoration: none;
+            padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: 0.3s;
+        }
+        .btn-link:hover { border-color: var(--accent-blue); background: rgba(0, 210, 255, 0.1); }
+        .btn-link.green:hover { border-color: var(--accent-green); background: rgba(0, 255, 136, 0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div>
+            <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
+        </div>
+
+        <div class="header-area">
+            <h1>Benvenuto a Trento!</h1>
+            <p>Sei appena arrivato in città? Trento è una delle città più virtuose d'Italia per la raccolta differenziata. Ecco tutto quello che devi sapere per gestire i tuoi rifiuti in modo corretto.</p>
+        </div>
+
+        <div class="grid">
+            
+            <!-- CARD 1: ISOLE ECOLOGICHE -->
+            <div class="card">
+                <i class="fa-solid fa-city card-icon color-blue"></i>
+                <h2>Centro Storico: Le Isole Ecologiche</h2>
+                <p>Abiti in centro? La raccolta avviene tramite le <b>Isole Ecologiche stradali</b>. I contenitori del residuo si aprono unicamente strisciando la tua <b>Tessera Sanitaria</b> abilitata o la Carta Regionale dei Servizi. Ricorda: l'abbandono di sacchetti fuori dai bidoni è severamente sanzionato.</p>
+                <a href="main.html" class="btn-link">
+                    <i class="fa-solid fa-map-location-dot"></i> Trova Isole sulla Mappa
+                </a>
+            </div>
+
+            <!-- CARD 2: PORTA A PORTA -->
+            <div class="card green-glow">
+                <i class="fa-solid fa-house card-icon color-green"></i>
+                <h2>Quartieri: Il Porta a Porta</h2>
+                <p>Nelle zone fuori dal centro storico è attivo il servizio <b>Porta a Porta</b>. Dovrai esporre i tuoi mastelli colorati o i sacchi in strada la sera prima o la mattina presto, seguendo rigidamente i giorni stabiliti per la tua zona. Ritira i bidoncini appena svuotati.</p>
+                <a href="tabSpzz.html" class="btn-link green">
+                    <i class="fa-regular fa-calendar-days"></i> Consulta il Calendario
+                </a>
+            </div>
+
+            <!-- CARD 3: INGOMBRANTI -->
+            <div class="card">
+                <i class="fa-solid fa-truck-pickup card-icon color-blue"></i>
+                <h2>Rifiuti Ingombranti</h2>
+                <p>Hai un vecchio divano, un materasso o un grande elettrodomestico da smaltire? Non abbandonarlo in strada! Il Comune offre un comodo servizio di ritiro a domicilio su prenotazione.</p>
+                <a href="ingombranti.html" class="btn-link">
+                    <i class="fa-solid fa-calendar-check"></i> Prenota Ritiro
+                </a>
+            </div>
+
+            <!-- CARD 4: SEGNALAZIONI -->
+            <div class="card green-glow">
+                <i class="fa-solid fa-triangle-exclamation card-icon color-green"></i>
+                <h2>Segnalazioni</h2>
+                <p>Aiutaci a mantenere Trento pulita. Se noti un cestino strabordante, un'isola ecologica danneggiata o rifiuti abbandonati, usa il nostro portale per avvisare rapidamente gli operatori.</p>
+                <a href="segnalazioni.html" class="btn-link green">
+                    <i class="fa-solid fa-paper-plane"></i> Invia Segnalazione
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
