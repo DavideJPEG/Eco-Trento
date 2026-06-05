@@ -26,8 +26,8 @@
             {{ toast.message }}
         </div>
     </div>
-
-    <div id="app">
+    
+    <div id="app" v-cloak>
         
         <nav class="navbar">
             <div class="brand">
@@ -35,22 +35,22 @@
             </div>
             
             <div class="nav-links">
-                <a href="main.html" class="active"><i class="fa-solid fa-map-location-dot"></i> Mappa</a>
-                <a href="tabSpzz.html"><i class="fa-solid fa-calendar-days"></i> Calendario</a>
-                <a href="segnalazioni.html"><i class="fa-solid fa-triangle-exclamation"></i> Segnala</a>
-                <a href="ingombranti.html"><i class="fa-solid fa-truck-ramp-box"></i> Ingombranti</a>
+                <a href="main.html" class="active"><i class="fa-solid fa-map-location-dot"></i> {{ t('nav_mappa') }}</a>
+                <a href="tabSpzz.html"><i class="fa-solid fa-calendar-days"></i> {{ t('nav_calendario') }}</a>
+                <a href="segnalazioni.html"><i class="fa-solid fa-triangle-exclamation"></i> {{ t('nav_segnala') }}</a>
+                <a href="ingombranti.html"><i class="fa-solid fa-truck-ramp-box"></i> {{ t('nav_ingombranti') }}</a>
                 <a href="profilo.html" class="nav-link">
-                    <i class="fa-solid fa-user"></i> Il Mio Profilo
+                    <i class="fa-solid fa-user"></i> {{ t('nav_profilo') }}
                 </a>
                 <a href="guida.html" class="nav-link">
-                    <i class="fa-solid fa-book"></i> Guida al Riciclo
+                    <i class="fa-solid fa-book"></i> {{ t('nav_guida') }}
                 </a>
 
                 <a v-if="!isLogged" href="login.html" class="btn-login">
-                    <i class="fa-solid fa-user"></i> Accedi
+                    <i class="fa-solid fa-user"></i> {{ t('nav_accedi') }}
                 </a>
                 <a v-if="isLogged" href="#" @click.prevent="logout" class="btn-logout">
-                    <i class="fa-solid fa-right-from-bracket"></i> Esci
+                    <i class="fa-solid fa-right-from-bracket"></i> {{ t('nav_esci') }}
                 </a>
             </div>
         </nav>
@@ -63,21 +63,21 @@
 
                 <div v-if="!selectedElement" class="placeholder-box">
                     <i class="fa-solid fa-mountain-city"></i>
-                    <h3 style="color: white; margin-bottom: 8px; font-size: 18px;">Esplora Trento</h3>
-                    <p style="font-size: 14px; line-height: 1.5;">Clicca su un'area della mappa per vedere i giorni di raccolta della zona, o seleziona un'icona per i punti di raccolta speciali (Olio esausto, RAEE).</p>
+                    <h3 style="color: white; margin-bottom: 8px; font-size: 18px;">{{ t('mappa_esplora_titolo') }}</h3>
+                    <p style="font-size: 14px; line-height: 1.5;">{{ t('mappa_esplora_desc') }}</p>
                 </div>
 
                 <div v-if="selectedElement && selectedElement.type === 'quartiere'" style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="panel-header">
-                        <i class="fa-solid fa-draw-polygon"></i> info zona di residenza
+                        <i class="fa-solid fa-draw-polygon"></i> {{ t('mappa_info_zona') }}
                     </div>
                     <div>
                         <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">{{ selectedElement.nome }}</h2>
-                        <p style="color: var(--text-muted); font-size: 13px;">Calendario Porta a Porta attivo questa settimana</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">{{ t('mappa_cal_attivo') }}</p>
                     </div>
 
                     <div class="info-card">
-                        <h3 style="font-size: 12px; text-transform: uppercase; color: var(--accent-green); letter-spacing: 1px;">Regole Esposizione Rifiuti:</h3>
+                        <h3 style="font-size: 12px; text-transform: uppercase; color: var(--accent-green); letter-spacing: 1px;">{{ t('mappa_regole_esp') }}</h3>
                         
                         <div v-for="regola in selectedElement.regole" :key="regola.rifiuto" class="rule-row">
                             <div class="rifiuto-badge">
@@ -90,13 +90,13 @@
                         </div>
                     </div>
                     <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">
-                        <i class="fa-solid fa-circle-info"></i> Attenzione: Esporre i sacchi o i mastelli sul suolo pubblico esclusivamente nei giorni e negli orari indicati.
+                        <i class="fa-solid fa-circle-info"></i> {{ t('mappa_attenzione_sacchi') }}
                     </p>
                 </div>
 
                 <div v-if="selectedElement && selectedElement.type === 'speciale'" style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="panel-header" style="color: var(--accent-green)">
-                        <i class="fa-solid fa-location-crosshairs"></i> punto di raccolta speciale
+                        <i class="fa-solid fa-location-crosshairs"></i> {{ t('mappa_punto_speciale') }}
                     </div>
                     
                     <div class="special-header">
@@ -105,15 +105,15 @@
                         </div>
                         <div>
                             <h2 style="font-size: 20px; font-weight: 800;">{{ selectedElement.nome }}</h2>
-                            <span style="font-size: 12px; color: var(--text-muted)">Categoria: {{ selectedElement.categoria }}</span>
+                            <span style="font-size: 12px; color: var(--text-muted)">{{ t('mappa_categoria') }} {{ selectedElement.categoria }}</span>
                         </div>
                     </div>
 
                     <div class="info-card">
                         <div style="font-size: 14px; line-height: 1.6;">
-                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">📍 Dove si trova:</strong><br>{{ selectedElement.indirizzo }}</p>
-                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">🕒 Note d'uso:</strong><br>{{ selectedElement.note }}</p>
-                            <p><strong>🟢 Stato:</strong> {{ selectedElement.stato }}</p>
+                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">📍 {{ t('mappa_dove_trova') }}</strong><br>{{ selectedElement.indirizzo }}</p>
+                            <p style="margin-bottom: 10px;"><strong style="color: var(--accent-blue)">🕒 {{ t('mappa_note_uso') }}</strong><br>{{ selectedElement.note }}</p>
+                            <p><strong>🟢 {{ t('mappa_stato') }}</strong> {{ selectedElement.stato }}</p>
                         </div>
                     </div>
                 </div>
@@ -122,8 +122,8 @@
         </div>
     </div>
 
-    <!-- I tuoi Script (Sicurezza + Logica pagina) -->
-    <!-- <script src="../common/security.js"></script> --> <!-- Scommenta se vuoi proteggere la dashboard -->
+    <script src="../common/security.js"></script> 
+    <script src="../common/lingue.js"></script>
     <script src="../scripts/main.js"></script>
 
 </body>

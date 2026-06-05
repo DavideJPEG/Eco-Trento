@@ -7,13 +7,18 @@ createApp({
             selectedQuartiereUrl: '', 
             pdfLink: '',
             isLoading: false,
-            isMocking: false 
+            isMocking: false ,
+            linguaAttuale: localStorage.getItem('eco_lang') || 'it',
         }
     },
     mounted() {
         this.fetchQuartieri();
     },
     methods: {
+
+        t(chiave) { return window.i18n ? window.i18n.t(chiave) : chiave; },
+impostaLingua(lang) { if(window.i18n) window.i18n.cambiaLingua(lang); },
+
         async fetchQuartieri() {
             try {
                 const response = await fetch('http://localhost:3000/api/v1/quartieri');

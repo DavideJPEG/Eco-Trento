@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Segnalazioni - ECOTRENTO</title>
+    
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/global.css" />
+
+    <style>
+        .container { max-width: 900px; padding-bottom: 50px; }
+        .header-dashboard { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .header-dashboard h1 { font-size: 28px; font-weight: 800; color: var(--accent-green); }
+        .filter-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: white; padding: 12px 20px; border-radius: 12px; outline: none; font-weight: bold; cursor: pointer; }
+        .filter-select:focus { border-color: var(--accent-blue); }
+        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .req-card { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+        .req-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .req-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .badge.aperta { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; }
+        .badge.in_lavorazione { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
+        .badge.risolta { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .req-title { font-size: 18px; font-weight: 700; color: white; margin-bottom: 5px; }
+        .req-desc { color: var(--text-muted); font-size: 14px; line-height: 1.5; flex-grow: 1; }
+        .req-meta { color: white; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .actions-area { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .btn-action { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .btn-carico { background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; }
+        .btn-carico:hover { background: #ffc107; color: #080810; }
+        .btn-risolta { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .btn-risolta:hover { background: var(--accent-green); color: #080810; }
+        .empty-state { text-align: center; padding: 50px; color: var(--text-muted); width: 100%; grid-column: 1 / -1; }
+        .message-toast { text-align: center; font-weight: bold; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .success { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .error { background: rgba(255, 71, 87, 0.1); color: #ff4757; border: 1px solid #ff4757; }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="container" v-cloak>
+        
+        <a href="main.html" style="color: var(--text-muted); text-decoration: none; margin-bottom: 15px; display: inline-block;">
+            <i class="fa-solid fa-arrow-left"></i> {{ t('torna_home') }}
+        </a>
+
+        <div class="header-dashboard">
+            <h1><i class="fa-solid fa-triangle-exclamation"></i> {{ t('titolo_segnalazioni') }}</h1>
+            
+            <select class="filter-select" v-model="filtroStato" @change="caricaSegnalazioni">
+                <option value="">{{ t('filtro_tutte') }}</option>
+                <option value="Aperta">{{ t('filtro_nuove') }}</option>
+                <option value="In_Lavorazione">{{ t('filtro_lavorazione') }}</option>
+                <option value="Risolta">{{ t('filtro_risolte') }}</option>
+            </select>
+        </div>
+
+        <div v-if="messaggio" :class="['message-toast', tipoMessaggio]">
+            {{ messaggio }}
+        </div>
+
+        <div v-if="isLoading" class="empty-state">
+            <i class="fa-solid fa-spinner fa-spin fa-3x" style="color: var(--accent-green); margin-bottom: 15px;"></i>
+            <p>{{ t('caricamento_dati') }}</p>
+        </div>
+
+        <div v-else class="requests-grid">
+            
+            <div v-if="segnalazioni.length === 0" class="empty-state">
+                <i class="fa-solid fa-check-circle fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>{{ t('nessuna_segnalazione') }}</p>
+            </div>
+
+            <div class="req-card" v-for="seg in segnalazioni" :key="seg.self">
+                <div class="req-header">
+                    <span :class="['badge', seg.stato.toLowerCase()]">{{ formattaTesto(seg.stato) }}</span>
+                </div>
+                
+                <div>
+                    <h3 class="req-title">{{ formattaTesto(seg.tipo) }}</h3>
+                    <p class="req-desc">"{{ seg.descrizione }}"</p>
+                </div>
+                
+                <div class="req-meta">
+                    <i class="fa-solid fa-location-dot"></i> 
+                    <strong>{{ t('indirizzo_titolo') }}</strong> {{ seg.via || t('indirizzo_mancante') }}
+                </div>
+
+                <div class="actions-area">
+                    
+                    <button v-if="seg.stato === 'Aperta'" 
+                            class="btn-action btn-carico" 
+                            @click="aggiornaStato(seg.self, 'presaInCarico')">
+                        <i class="fa-solid fa-hand-holding-hand"></i> {{ t('btn_carico') }}
+                    </button>
+
+                    <button v-if="seg.stato === 'In_Lavorazione'" 
+                            class="btn-action btn-risolta" 
+                            @click="aggiornaStato(seg.self, 'risolta')">
+                        <i class="fa-solid fa-circle-check"></i> {{ t('btn_risolta') }}
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT GLOBALI (Importa sempre lingue.js prima del file JS della pagina!) -->
+    <script src="../common/security.js"></script>
+    <script src="../common/lingue.js"></script>
+    <script src="../scripts/dashboard_segnalazioni.js"></script>
+</body>
+</html>

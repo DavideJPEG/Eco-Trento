@@ -7,7 +7,6 @@
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
     <link rel="stylesheet" href="../css/global.css" />
 
     <style>
@@ -21,53 +20,52 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(74, 108, 247, 0.4); }
         .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.3s; }
         .back-link:hover { color: white; }
-        
         .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
         .success { color: var(--accent-green); }
         .error { color: var(--danger-red); }
     </style>
 </head>
 <body>
-    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;">
-        <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
+    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;" v-cloak>
+        <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> {{ t('torna_dashboard') }}</a>
         
         <div class="card">
-            <h1>Prenota Ritiro Ingombranti</h1>
-            <p class="subtitle">Servizio di ritiro a domicilio per mobili e grandi elettrodomestici (Max 3 pezzi).</p>
+            <h1>{{ t('ingom_titolo') }}</h1>
+            <p class="subtitle">{{ t('ingom_sottotitolo') }}</p>
 
             <form @submit.prevent="submitRichiesta">
                 <div class="form-group">
-                    <label>Cosa dobbiamo ritirare?</label>
+                    <label>{{ t('ingom_cosa_ritirare') }}</label>
                     <select v-model="form.oggetto" required>
-                        <option value="" disabled>Scegli il pezzo principale...</option>
-                        <option value="Mobili">Mobili (Divano, Armadio, Tavolo)</option>
-                        <option value="Grandi Elettrodomestici">Grandi Elettrodomestici (Frigo, Lavatrice)</option>
-                        <option value="Materassi">Materassi o reti letto</option>
-                        <option value="Altro">Altro (specificare nelle note)</option>
+                        <option value="" disabled>{{ t('ingom_ph_pezzo') }}</option>
+                        <option value="Mobili">{{ t('ingom_opt_mobili') }}</option>
+                        <option value="Grandi Elettrodomestici">{{ t('ingom_opt_elettro') }}</option>
+                        <option value="Materassi">{{ t('ingom_opt_materassi') }}</option>
+                        <option value="Altro">{{ t('ingom_opt_altro') }}</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Data desiderata</label>
+                    <label>{{ t('ingom_data') }}</label>
                     <input type="date" v-model="form.data" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Fascia Oraria</label>
+                    <label>{{ t('ingom_fascia') }}</label>
                     <select v-model="form.fasciaOraria" required>
-                        <option value="" disabled>Scegli l'orario...</option>
-                        <option value="Mattina (08:00 - 12:00)">Mattina (08:00 - 12:00)</option>
-                        <option value="Pomeriggio (13:00 - 17:00)">Pomeriggio (13:00 - 17:00)</option>
+                        <option value="" disabled>{{ t('ingom_ph_orario') }}</option>
+                        <option value="Mattina (08:00 - 12:00)">{{ t('ingom_opt_mattina') }}</option>
+                        <option value="Pomeriggio (13:00 - 17:00)">{{ t('ingom_opt_pomeriggio') }}</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Indirizzo di Ritiro (Trento)</label>
-                    <input type="text" v-model="form.indirizzo" placeholder="Via e numero civico" required>
+                    <label>{{ t('ingom_indirizzo') }}</label>
+                    <input type="text" v-model="form.indirizzo" :placeholder="t('ingom_ph_indirizzo')" required>
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    <i class="fa-solid fa-truck"></i> PRENOTA RITIRO
+                    <i class="fa-solid fa-truck"></i> {{ t('ingom_btn_prenota') }}
                 </button>
 
                 <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
@@ -76,7 +74,7 @@
     </div>
 
     <script src="../common/security.js"></script>
-    
+    <script src="../common/lingue.js"></script>
     <script src="../scripts/ingombranti.js"></script>
 </body>
 </html>

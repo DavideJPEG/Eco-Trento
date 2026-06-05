@@ -7,10 +7,15 @@ createApp({
             errorMessage: '',
             successMessage: '',
             loginData: { email: '', password: '' },
-            registerData: { nome: '', cognome: '', email: '', password: '' }
+            registerData: { nome: '', cognome: '', email: '', password: '' },
+            linguaAttuale: localStorage.getItem('eco_lang') || 'it',
         }
     },
     methods: {
+
+        t(chiave) { return window.i18n ? window.i18n.t(chiave) : chiave; },
+impostaLingua(lang) { if(window.i18n) window.i18n.cambiaLingua(lang); },
+
         // FUNZIONE PER IL LOGIN
         async handleLogin() {
             this.errorMessage = '';

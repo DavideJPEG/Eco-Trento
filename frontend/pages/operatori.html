@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operatore - ECOTRENTO</title>
+    
+    <!-- Librerie Esterne -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- CSS Globale -->
+    <link rel="stylesheet" href="../css/global.css" />
+
+    <!-- CSS Specifico Operatore -->
+    <style>
+        .container { max-width: 900px; padding-bottom: 50px; }
+        .header-dashboard { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .header-dashboard h1 { font-size: 28px; font-weight: 800; color: var(--accent-blue); }
+        .filter-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); color: white; padding: 12px 20px; border-radius: 12px; outline: none; font-weight: bold; cursor: pointer; }
+        .filter-select:focus { border-color: var(--accent-green); }
+        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .req-card { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+        .req-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .req-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .req-title { font-size: 18px; font-weight: 700; color: white; line-height: 1.4; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .badge.in_attesa { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
+        .badge.accettata { background: rgba(0, 210, 255, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .badge.completata { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .badge.annullata { background: rgba(255, 71, 87, 0.2); color: var(--danger-red); border: 1px solid var(--danger-red); }
+        .badge.modifica_proposta { background: rgba(155, 89, 182, 0.2); color: #9b59b6; border: 1px solid #9b59b6; }
+        .req-date { color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .actions-area { display: flex; gap: 10px; margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .btn-action { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 13px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .btn-accetta { background: rgba(0, 210, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .btn-accetta:hover { background: var(--accent-blue); color: #080810; }
+        .btn-completa { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .btn-completa:hover { background: var(--accent-green); color: #080810; }
+        .btn-annulla { background: transparent; color: var(--text-muted); }
+        .btn-annulla:hover { color: var(--danger-red); }
+        .empty-state { text-align: center; padding: 50px; color: var(--text-muted); width: 100%; grid-column: 1 / -1; }
+        .message-toast { text-align: center; font-weight: bold; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .success { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .error { background: rgba(255, 71, 87, 0.1); color: var(--danger-red); border: 1px solid var(--danger-red); }
+    </style>
+</head>
+<body>
+
+    <!-- Contenitore Vue Principale -->
+    <div id="app" class="container" v-cloak>
+        
+        <a href="main.html" style="color: var(--text-muted); text-decoration: none; margin-bottom: 15px; display: inline-block;">
+            <i class="fa-solid fa-arrow-left"></i> {{ t('torna_home') }}
+        </a>
+
+        <div class="header-dashboard">
+            <h1><i class="fa-solid fa-clipboard-check"></i> {{ t('titolo_ingombranti') }}</h1>
+            
+            <select class="filter-select" v-model="filtro" @change="caricaRichieste">
+                <option value="">{{ t('filtro_tutte_req') }}</option>
+                <option value="In_Attesa">{{ t('filtro_attesa') }}</option>
+                <option value="Accettata">{{ t('filtro_accettate') }}</option>
+                <option value="Completata">{{ t('filtro_completate') }}</option>
+                <option value="Annullata">{{ t('filtro_annullate') }}</option>
+            </select>
+        </div>
+
+        <div v-if="messaggio" :class="['message-toast', tipoMessaggio]">
+            {{ messaggio }}
+        </div>
+
+        <div v-if="isLoading" class="empty-state">
+            <i class="fa-solid fa-spinner fa-spin fa-3x" style="color: var(--accent-blue); margin-bottom: 15px;"></i>
+            <p>{{ t('caricamento_dati') }}</p>
+        </div>
+
+        <div v-else class="requests-grid">
+            
+            <div v-if="richieste.length === 0" class="empty-state">
+                <i class="fa-solid fa-box-open fa-3x" style="margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>{{ t('nessuna_richiesta') }}</p>
+            </div>
+
+            <!-- Card per ogni richiesta -->
+            <div class="req-card" v-for="req in richieste" :key="req.self">
+                <div class="req-header">
+                    <span :class="['badge', req.stato.toLowerCase()]">{{ formattaStato(req.stato) }}</span>
+                </div>
+                
+                <h3 class="req-title">{{ req.descrizioneOggetti }}</h3>
+                
+                <div class="req-date">
+                    <i class="fa-regular fa-calendar"></i> 
+                    {{ t('data_ritiro') }} <strong>{{ formattaData(req.dataRitiroRichiesta) }}</strong>
+                </div>
+
+                <!-- Bottoni dinamici in base allo stato -->
+                <div class="actions-area">
+                    <button v-if="req.stato === 'In_Attesa' || req.stato === 'Modifica_Proposta'" 
+                            class="btn-action btn-accetta" 
+                            @click="aggiornaStato(req.self, 'accetta')">
+                        <i class="fa-solid fa-thumbs-up"></i> {{ t('btn_accetta') }}
+                    </button>
+
+                    <button v-if="req.stato === 'Accettata'" 
+                            class="btn-action btn-completa" 
+                            @click="aggiornaStato(req.self, 'completa')">
+                        <i class="fa-solid fa-check-double"></i> {{ t('btn_completa') }}
+                    </button>
+
+                    <button v-if="req.stato !== 'Completata' && req.stato !== 'Annullata'" 
+                            class="btn-action btn-annulla" 
+                            @click="aggiornaStato(req.self, 'annulla')">
+                        <i class="fa-solid fa-xmark"></i> {{ t('btn_annulla') }}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script Sicurezza e Lingue -->
+    <script src="../common/security.js"></script>
+    <script src="../common/lingue.js"></script>
+    
+    <!-- Script della Pagina -->
+    <script src="../scripts/dashboard-operatore.js"></script>
+</body>
+</html>

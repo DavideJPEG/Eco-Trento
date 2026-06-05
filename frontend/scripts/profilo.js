@@ -9,6 +9,7 @@ createApp({
             tipoMessaggio: '',
             userEmail: '',
             userRuolo: '',
+            linguaAttuale: localStorage.getItem('eco_lang') || 'it', 
             form: {
                 nome: '',
                 cognome: '',
@@ -22,6 +23,19 @@ createApp({
         this.caricaDatiUtente();
     },
     methods: {
+        // --- COLLEGAMENTO SICURO A LINGUE.JS ---
+        t(chiave) { 
+            return window.i18n ? window.i18n.t(chiave) : chiave; 
+        },
+        impostaLingua(lang) {
+            if (window.i18n) {
+                window.i18n.cambiaLingua(lang);
+            } else {
+                console.error("File lingue.js non trovato!");
+            }
+        },
+        // ---------------------------------------
+
         async caricaDatiUtente() {
             const token = localStorage.getItem('token');
             try {
@@ -39,11 +53,9 @@ createApp({
                 if (data.success && data.user) {
                     this.userEmail = data.user.email;
                     this.userRuolo = data.user.ruolo;
-                    
                     this.form.nome = data.user.nome || '';
                     this.form.cognome = data.user.cognome || '';
                     this.form.indirizzoPrincipale = data.user.indirizzoPrincipale || '';
-                    
                     if (data.user.preferenzeNotifiche) {
                         this.form.notificaApp = data.user.preferenzeNotifiche.app;
                         this.form.notificaEmail = data.user.preferenzeNotifiche.email;
@@ -51,7 +63,7 @@ createApp({
                 }
             } catch (err) {
                 console.error(err);
-                this.messaggio = "Impossibile caricare il profilo. Il token potrebbe essere scaduto.";
+                this.messaggio = "Impossibile caricare il profilo.";
                 this.tipoMessaggio = "error";
             } finally {
                 this.isLoading = false;
@@ -80,10 +92,9 @@ createApp({
                     this.messaggio = "Profilo aggiornato con successo!";
                     this.tipoMessaggio = "success";
                     this.isEditing = false;
-                    
                     localStorage.setItem('user', JSON.stringify(data.user));
                 } else {
-                    throw new Error(data.message || "Errore durante l'aggiornamento");
+                    throw new Error(data.message || "Errore");
                 }
             } catch (err) {
                 console.error(err);

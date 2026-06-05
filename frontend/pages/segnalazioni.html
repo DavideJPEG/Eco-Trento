@@ -7,70 +7,57 @@
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
     <link rel="stylesheet" href="../css/global.css" />
 
     <style>
         .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         h1 { font-size: 24px; margin-bottom: 5px; font-weight: 800; }
         p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
-
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
         label { font-size: 13px; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 1px; }
-        
-        input, select, textarea {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 12px; color: white; outline: none; transition: 0.3s;
-        }
+        input, select, textarea { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; color: white; outline: none; transition: 0.3s; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-green); background: rgba(255,255,255,0.06); }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, var(--accent-green), #00b894);
-            color: #080810; border: none; padding: 15px; border-radius: 12px; width: 100%;
-            font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px;
-        }
+        .btn-submit { background: linear-gradient(135deg, var(--accent-green), #00b894); color: #080810; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
-
         .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.3s; }
         .back-link:hover { color: white; }
-
         .message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; }
         .success { color: var(--accent-green); }
         .error { color: var(--danger-red); }
     </style>
 </head>
 <body>
-    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;">
-        <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
+    <div id="app" class="container" style="max-width: 700px; margin-top: 5vh;" v-cloak>
+        <a href="main.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> {{ t('torna_dashboard') }}</a>
         
         <div class="card">
-            <h1>Invia una Segnalazione</h1>
-            <p class="subtitle">Aiutaci a mantenere Trento pulita. Segnala cestini pieni o rifiuti abbandonati.</p>
+            <h1>{{ t('segnala_titolo') }}</h1>
+            <p class="subtitle">{{ t('segnala_sottotitolo') }}</p>
 
             <form @submit.prevent="submitSegnalazione">
                 <div class="form-group">
-                    <label>Tipo di Problema</label>
+                    <label>{{ t('segnala_tipo_prob') }}</label>
                     <select v-model="form.tipo" required>
-                        <option value="" disabled>Seleziona una categoria...</option>
-                        <option value="Rifiuti abbandonati">Rifiuti abbandonati sul suolo pubblico</option>
-                        <option value="Cestino pieno">Cestino stradale pieno / strabordante</option>
-                        <option value="Campana danneggiata">Campana / Isola ecologica danneggiata</option>
-                        <option value="Mancata raccolta">Mancata raccolta porta a porta</option>
+                        <option value="" disabled>{{ t('segnala_ph_categoria') }}</option>
+                        <!-- CORREZIONE: value allineati ai requisiti Mongoose -->
+                        <option value="Abbandono_Rifiuti">{{ t('segnala_opt_abbandono') }}</option>
+                        <option value="Isola_Guasta">{{ t('segnala_opt_guasta') }}</option>
+                        <option value="Altro">{{ t('segnala_opt_altro') }}</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Via / Piazza di Trento</label>
-                    <input type="text" v-model="form.via" placeholder="Esempio: Via Belenzani" required>
+                    <label>{{ t('segnala_via') }}</label>
+                    <input type="text" v-model="form.via" :placeholder="t('segnala_ph_via')" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Descrizione Dettagliata</label>
-                    <textarea v-model="form.descrizione" rows="4" placeholder="Descrivi il problema (es: vicino al civico 10...)"></textarea>
+                    <label>{{ t('segnala_desc') }}</label>
+                    <textarea v-model="form.descrizione" rows="4" :placeholder="t('segnala_ph_desc')"></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    <i class="fa-solid fa-paper-plane"></i> INVIA SEGNALAZIONE
+                    <i class="fa-solid fa-paper-plane"></i> {{ t('segnala_btn_invia') }}
                 </button>
 
                 <p v-if="messaggio" :class="['message', tipoMessaggio]">{{ messaggio }}</p>
@@ -79,7 +66,7 @@
     </div>
 
     <script src="../common/security.js"></script>
-    
+    <script src="../common/lingue.js"></script>
     <script src="../scripts/segnalazioni.js"></script>
 </body>
 </html>

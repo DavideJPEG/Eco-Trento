@@ -7,68 +7,42 @@
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
     <link rel="stylesheet" href="../css/global.css" />
 
     <style>
         .header-area { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-
-        .back-btn {
-            display: flex; align-items: center; gap: 8px; color: var(--text-muted);
-            text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.3s;
-        }
+        .back-btn { display: flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.3s; }
         .back-btn:hover { color: #ffffff; }
-
-        .card {
-            background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass);
-            border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;
-        }
-
+        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; }
         .card h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--accent-blue); }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; line-height: 1.5; }
-
         .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; text-align: left; }
         .form-group label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-
-        .zone-selector {
-            background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 12px; font-size: 15px; cursor: pointer; outline: none; transition: 0.3s; width: 100%;
-        }
+        .zone-selector { background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; font-size: 15px; cursor: pointer; outline: none; transition: 0.3s; width: 100%; }
         .zone-selector:focus { border-color: var(--accent-green); background: rgba(255,255,255,0.06); }
-
-        .pdf-area {
-            background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 16px; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px;
-        }
-
+        .pdf-area { background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .pdf-icon { font-size: 50px; color: #ff4757; filter: drop-shadow(0 0 10px rgba(255, 71, 87, 0.3)); }
-
-        .btn-primary {
-            display: inline-block; background: linear-gradient(135deg, var(--accent-green), #00b894);
-            color: #080810; text-decoration: none; padding: 15px 30px; border-radius: 12px;
-            font-weight: 800; font-size: 15px; transition: 0.3s; width: 100%; cursor: pointer; border: none;
-        }
+        .btn-primary { display: inline-block; background: linear-gradient(135deg, var(--accent-green), #00b894); color: #080810; text-decoration: none; padding: 15px 30px; border-radius: 12px; font-weight: 800; font-size: 15px; transition: 0.3s; width: 100%; cursor: pointer; border: none; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3); }
-        
         .loading-text { color: var(--text-muted); font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div id="app" class="container" style="max-width: 600px; margin-top: 5vh;">
+    <div id="app" class="container" style="max-width: 600px; margin-top: 5vh;" v-cloak>
         
         <header class="header-area">
-            <a class="back-btn" href="main.html"><i class="fa-solid fa-arrow-left"></i> Torna alla Dashboard</a>
+            <a class="back-btn" href="main.html"><i class="fa-solid fa-arrow-left"></i> {{ t('torna_dashboard') }}</a>
         </header>
 
         <div class="card">
-            <h1><i class="fa-regular fa-calendar-days"></i> Il Tuo Calendario</h1>
-            <p class="subtitle">Seleziona la tua circoscrizione per consultare o stampare il calendario ufficiale della raccolta differenziata.</p>
+            <h1><i class="fa-regular fa-calendar-days"></i> {{ t('cal_titolo') }}</h1>
+            <p class="subtitle">{{ t('cal_sottotitolo') }}</p>
 
             <div class="form-group">
-                <label>Quartiere di Trento</label>
+                <label>{{ t('cal_label_quartiere') }}</label>
                 <select class="zone-selector" v-model="selectedQuartiereUrl" @change="fetchPdfLink">
-                    <option v-if="quartieri.length === 0 && !isMocking" value="">Caricamento zone in corso...</option>
+                    <option v-if="quartieri.length === 0 && !isMocking" value="">{{ t('cal_opt_caricamento') }}</option>
                     
                     <option v-for="q in quartieri" :key="q.self" :value="q.calendario">
                         {{ q.nome }}
@@ -78,23 +52,22 @@
 
             <div v-if="isLoading" class="pdf-area">
                 <i class="fa-solid fa-spinner fa-spin pdf-icon" style="color: var(--accent-blue);"></i>
-                <span class="loading-text">Recupero documento in corso...</span>
+                <span class="loading-text">{{ t('cal_recupero_doc') }}</span>
             </div>
 
             <div v-else-if="pdfLink" class="pdf-area">
                 <i class="fa-regular fa-file-pdf pdf-icon"></i>
                 <h3 style="font-size: 16px;">Calendario_Raccolta.pdf</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Formato PDF Stampabile</p>
+                <p style="font-size: 12px; color: var(--text-muted);">{{ t('cal_formato_pdf') }}</p>
                 
                 <a :href="pdfLink" target="_blank" class="btn-primary">
-                    <i class="fa-solid fa-print"></i> Apri e Stampa
+                    <i class="fa-solid fa-print"></i> {{ t('cal_btn_stampa') }}
                 </a>
             </div>
-
         </div>
-
     </div>
 
+    <script src="../common/lingue.js"></script>
     <script src="../scripts/tabSpzz.js"></script>
 
 </body>

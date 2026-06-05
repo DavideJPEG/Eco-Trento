@@ -5,22 +5,27 @@ createApp({
         return {
             form: { oggetto: '', data: '', indirizzo: '', fasciaOraria: '' },
             messaggio: '',
-            tipoMessaggio: ''
+            tipoMessaggio: '',
+            linguaAttuale: localStorage.getItem('eco_lang') || 'it',
         }
     },
     methods: {
+        // Metodo per la lingua
+       t(chiave) { return window.i18n ? window.i18n.t(chiave) : chiave; },
+impostaLingua(lang) { if(window.i18n) window.i18n.cambiaLingua(lang); },
+
         async submitRichiesta() {
-            this.messaggio = "Invio in corso...";
+            this.messaggio = this.t('msg_invio_corso');
             this.tipoMessaggio = "";
             
-            const testoUnito = `${this.form.oggetto} - Indirizzo digitato: ${this.form.indirizzo}`;
-            const token = localStorage.getItem('token'); // Recuperiamo il token dal browser
+            const testoUnito = `${this.form.oggetto} - ${this.t('msg_indirizzo_digitato')}: ${this.form.indirizzo}`;
+            const token = localStorage.getItem('token'); 
 
             const payload = {
                 descrizioneOggetti: testoUnito,
                 dataRitiroRichiesta: this.form.data,
                 fasciaOraria: this.form.fasciaOraria,
-                viaRitiro: "507f1f77bcf86cd799439011" // L'ID finto per superare il blocco delle Strade
+                viaRitiro: "507f1f77bcf86cd799439011" 
             };
 
             try {
@@ -35,7 +40,7 @@ createApp({
                 });
 
                 if (response.ok) {
-                    this.messaggio = "Richiesta inviata con successo!";
+                    this.messaggio = this.t('msg_richiesta_successo');
                     this.tipoMessaggio = "success";
                     
                     this.form = { oggetto: '', data: '', indirizzo: '', fasciaOraria: '' };
@@ -47,7 +52,7 @@ createApp({
 
             } catch (err) {
                 console.error(err);
-                this.messaggio = "Accesso negato o errore del server.";
+                this.messaggio = this.t('msg_errore_server');
                 this.tipoMessaggio = "error";
             }
         }
