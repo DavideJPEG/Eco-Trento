@@ -263,6 +263,12 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     animation: slideIn 0.3s ease-out;
 }
+.back-link { 
+    color: var(--text-muted); text-decoration: none; font-size: 14px; 
+    display: flex; align-items: center; justify-content: center; gap: 8px; 
+    margin-bottom: 20px; transition: 0.3s; 
+}
+.back-link:hover { color: white; }
 
 [v-cloak] {
     display: none !important;

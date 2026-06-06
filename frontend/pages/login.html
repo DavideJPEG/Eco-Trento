@@ -42,6 +42,10 @@
 <div id="app" class="login-container" v-cloak>
     <h1>ECOTRENTO</h1>
 
+    <a href="main.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('torna_home') }}
+    </a>
+
     <!-- Selettore Lingua Globale per il Login -->
     <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
         <span @click="impostaLingua('it')" :style="linguaAttuale === 'it' ? 'color: var(--accent-blue); cursor: pointer; font-weight: bold;' : 'color: var(--text-muted); cursor: pointer;'">IT</span>
