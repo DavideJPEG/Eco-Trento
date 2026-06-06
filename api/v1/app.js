@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const authRoutes = require('./auth/auth');
 const areaRoutes = require('./area/quartieri');
@@ -25,6 +26,14 @@ app.use('/api/v1/utenti', utentiRoutes);
 app.use('/api/v1/segnalazioni', utentiAuth, segnalazioniRoutes);
 app.use('/api/v1/ingombranti', utentiAuth, ingombrantiRoutes);
 app.use('/api/v1/notifiche', utentiAuth, notificheRoutes);
+
+// Frontend statico
+app.use(express.static(path.join(__dirname, '../../frontend/')));
+
+// Home page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/pages/main.html'));
+});
 
 app.get('/', (req, res) => res.json({ message: 'API v1 attiva' }));
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));

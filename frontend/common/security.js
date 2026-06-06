@@ -61,7 +61,7 @@
 
             document.body.appendChild(modal);
 
-            // 4. Dopo 2.5 secondi rimanda dolcemente alla pagina di Login
+            // 4. Dopo 2.5 secondi rimanda alla pagina di Login
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 2500);

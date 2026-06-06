@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <!-- Il tuo CSS -->
-    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="/css/global.css" />
 
     <style>
         body { overflow: hidden; }
@@ -35,18 +35,18 @@
             </div>
             
             <div class="nav-links">
-                <a href="main.html" class="active"><i class="fa-solid fa-map-location-dot"></i> {{ t('nav_mappa') }}</a>
-                <a href="tabSpzz.html"><i class="fa-solid fa-calendar-days"></i> {{ t('nav_calendario') }}</a>
-                <a href="segnalazioni.html"><i class="fa-solid fa-triangle-exclamation"></i> {{ t('nav_segnala') }}</a>
-                <a href="ingombranti.html"><i class="fa-solid fa-truck-ramp-box"></i> {{ t('nav_ingombranti') }}</a>
-                <a href="profilo.html" class="nav-link">
+                <a href="/pages/main.html" class="active"><i class="fa-solid fa-map-location-dot"></i> {{ t('nav_mappa') }}</a>
+                <a href="/pages/tabSpzz.html"><i class="fa-solid fa-calendar-days"></i> {{ t('nav_calendario') }}</a>
+                <a href="/pages/segnalazioni.html"><i class="fa-solid fa-triangle-exclamation"></i> {{ t('nav_segnala') }}</a>
+                <a href="/pages/ingombranti.html"><i class="fa-solid fa-truck-ramp-box"></i> {{ t('nav_ingombranti') }}</a>
+                <a href="/pages/profilo.html" class="nav-link">
                     <i class="fa-solid fa-user"></i> {{ t('nav_profilo') }}
                 </a>
-                <a href="guida.html" class="nav-link">
+                <a href="/pages/guida.html" class="nav-link">
                     <i class="fa-solid fa-book"></i> {{ t('nav_guida') }}
                 </a>
 
-                <a v-if="!isLogged" href="login.html" class="btn-login">
+                <a v-if="!isLogged" href="/pages/login.html" class="btn-login">
                     <i class="fa-solid fa-user"></i> {{ t('nav_accedi') }}
                 </a>
                 <a v-if="isLogged" href="#" @click.prevent="logout" class="btn-logout">
@@ -122,8 +122,8 @@
         </div>
     </div>
 
-    <script src="../common/lingue.js"></script>
-    <script src="../scripts/main.js"></script>
+    <script src="/common/lingue.js"></script>
+    <script src="/scripts/main.js"></script>
 
 </body>
 </html>
