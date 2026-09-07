@@ -47,7 +47,10 @@ createApp({
         initMap() {
             this.map = L.map('map', { zoomControl: false }).setView([46.0640, 11.1240], 15);
             L.control.zoom({ position: 'bottomright' }).addTo(this.map);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap' }).addTo(this.map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(this.map); 
 
             this.quartieri.forEach(q => {
                 const polygonLayer = L.polygon(q.poligono, { color: q.coloreStile, weight: 2, fillColor: q.coloreStile, fillOpacity: 0.08, dashArray: '5, 5' }).addTo(this.map);
