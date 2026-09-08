@@ -1,0 +1,567 @@
+openapi: "3.0.0"
+info:
+  title: "EcoTrento OpenAPI 1.0"
+  version: "1.0.0"
+  description: >-
+    API REST per la gestione di utenti, segnalazioni, rifiuti ingombranti,
+    notifiche, quartieri e strade nel progetto Eco‑Trento.
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:3000/api/v1
+    description: LocalHost
+paths:
+  /auth:
+    post:
+      summary: Autenticazione utente (email/password o Google)
+      description: >-
+        Autentica un utente creando un token JWT di sessione.
+        Se viene fornito un googleToken, effettua login/registrazione tramite account Google.
+      requestBody:
+        description: Nel body devono essere presenti email e password oppure il token Google.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email dell'utente
+                password:
+                  type: string
+                  description: Password dell'utente
+                googleToken:
+                  type: string
+                  description: Token ID fornito da Google OAuth2
+      responses:
+        "200":
+          description: Utente autenticato, token JWT generato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: True se l'autenticazione è andata a buon fine
+                  token:
+                    type: string
+                    description: Token di autenticazione JWT
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: ID dell'utente autenticato
+                      email:
+                        type: string
+                        format: email
+                        description: Email dell'utente
+                      ruolo:
+                        type: string
+                        description: Ruolo dell'utente (es. "utente", "operatore")
+        "400":
+          description: Email o password mancanti
+        "401":
+          description: Credenziali sbagliate o Google token non valido
+  /utenti/register:
+    post:
+      summary: Registrazione di un nuovo utente
+      description: >-
+        Crea un utente a partire da nome, cognome, email, password
+        e indirizzo principale.
+      requestBody:
+        description: Nel body devono essere presenti almeno email e password; gli altri campi sono opzionali.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                nome:
+                  type: string
+                  description: Nome dell'utente
+                cognome:
+                  type: string
+                  description: Cognome dell'utente
+                email:
+                  type: string
+                  format: email
+                  description: Indirizzo email dell'utente
+                password:
+                  type: string
+                  description: Password dell'utente (verrà hashata con bcrypt)
+                via:
+                  type: string
+                  description: ID o riferimento alla via principale dell'utente
+      responses:
+        "201":
+          description: Utente creato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Messaggio di conferma registrazione
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      ruolo:
+                        type: string
+        "400":
+          description: Email o password mancanti
+        "409":
+          description: Utente già registrato con la stessa email
+  /utenti/me:
+    get:
+      summary: Profilo dell'utente autenticato
+      description: >-
+        Restituisce i dati del profilo dell'utente loggato (nome, cognome, email,
+        ruolo, indirizzo principale e preferenze notifiche).
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Profilo utente recuperato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      nome:
+                        type: string
+                      cognome:
+                        type: string
+                      ruolo:
+                        type: string
+                      indirizzoPrincipale:
+                        type: string
+                        description: Via principale collegata all'utente
+                      preferenzeNotifiche:
+                        type: object
+                        properties:
+                          app:
+                            type: boolean
+                          email:
+                            type: boolean
+        "404":
+          description: Utente non trovato
+    patch:
+      summary: Aggiornamento del profilo utente
+      description: >-
+        Permette all'utente autenticato di modificare nome, cognome,
+        indirizzo principale e preferenze di notifica.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                cognome:
+                  type: string
+                indirizzoPrincipale:
+                  type: string
+                notificaApp:
+                  type: boolean
+                  description: Abilitazione notifiche in app
+                notificaEmail:
+                  type: boolean
+                  description: Abilitazione notifiche via email
+      responses:
+        "200":
+          description: Profilo aggiornato con successo
+        "404":
+          description: Utente non trovato
+    delete:
+      summary: Eliminazione dell'account utente
+      description: Elimina definitivamente l'utente autenticato dal sistema.
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: Utente eliminato
+        "404":
+          description: Utente non trovato
+  /segnalazioni:
+    get:
+      summary: Lista segnalazioni
+      description: >-
+        Restituisce l'elenco delle segnalazioni filtrabili per utente,
+        tipo, via e stato. Per gli utenti normali vengono mostrate solo le proprie,
+        per gli operatori tutte.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: utente
+          schema:
+            type: string
+          description: ID utente (solo per operatori)
+        - in: query
+          name: tipo
+          schema:
+            type: string
+          description: Tipo di segnalazione (es. "Abbandono_Rifiuti")
+        - in: query
+          name: via
+          schema:
+            type: string
+          description: ID via associata
+        - in: query
+          name: stato
+          schema:
+            type: string
+          description: Stato della segnalazione (es. "Aperta", "In_Lavorazione", "Risolta")
+      responses:
+        "200":
+          description: Lista di segnalazioni
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    self:
+                      type: string
+                    title:
+                      type: string
+    post:
+      summary: Creazione segnalazione
+      description: Crea una nuova segnalazione da parte dell'utente autenticato.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tipo
+                - descrizione
+                - via
+              properties:
+                tipo:
+                  type: string
+                  description: Tipo di segnalazione
+                descrizione:
+                  type: string
+                  description: Descrizione testuale della segnalazione
+                via:
+                  type: string
+                  description: ID via in cui è stata rilevata la segnalazione
+      responses:
+        "201":
+          description: Segnalazione creata, header Location con link alla risorsa
+  /segnalazioni/{idSegnalazione}:
+    get:
+      summary: Dettaglio di una segnalazione
+      description: Restituisce tutte le informazioni di una singola segnalazione.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: idSegnalazione
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dati della segnalazione
+        "404":
+          description: Segnalazione non trovata
+    delete:
+      summary: Cancellazione segnalazione
+      description: >-
+        Cancella una segnalazione; solo l'autore o un operatore possono eliminarla.
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: Segnalazione cancellata
+        "403":
+          description: Utente non autorizzato
+        "404":
+          description: Segnalazione non trovata
+  /segnalazioni/{idSegnalazione}/presaInCarico:
+    patch:
+      summary: Presa in carico segnalazione
+      description: >-
+        Imposta lo stato della segnalazione a "In_Lavorazione" e crea una notifica di aggiornamento.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Segnalazione aggiornata a In_Lavorazione
+  /segnalazioni/{idSegnalazione}/risolta:
+    patch:
+      summary: Chiusura segnalazione come risolta
+      description: >-
+        Imposta lo stato della segnalazione a "Risolta" e crea una notifica per l'utente.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Segnalazione marcata come Risolta
+  /ingombranti:
+    get:
+      summary: Lista richieste rifiuti ingombranti
+      description: >-
+        Restituisce tutte le richieste di ritiro ingombranti; per l'utente autenticato solo le sue,
+        per l'operatore tutte. Filtrabile per stato.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: stato
+          schema:
+            type: string
+          description: >-
+            Stato richieste (es. "In_Attesa", "Accettata", "Completata", "Annullata")
+      responses:
+        "200":
+          description: Lista richieste ingombranti
+    post:
+      summary: Creazione richiesta ingombranti
+      description: >-
+        Crea una nuova richiesta di ritiro rifiuti ingombranti da parte dell'utente autenticato.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - viaRitiro
+                - descrizioneOggetti
+                - dataRitiroRichiesta
+                - fasciaOraria
+              properties:
+                viaRitiro:
+                  type: string
+                descrizioneOggetti:
+                  type: string
+                dataRitiroRichiesta:
+                  type: string
+                  format: date-time
+                fasciaOraria:
+                  type: string
+                  description: Fascia oraria preferita per il ritiro
+      responses:
+        "201":
+          description: Richiesta creata, header Location con link alla risorsa
+  /ingombranti/{idRichiesta}:
+    get:
+      summary: Dettaglio richiesta ingombranti
+      description: Restituisce i dati completi di una richiesta di ritiro rifiuti ingombranti.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Dati richiesta
+        "403":
+          description: Accesso non autorizzato
+        "404":
+          description: Richiesta non trovata
+    delete:
+      summary: Eliminazione richiesta
+      description: Elimina una richiesta esistente (utente proprietario o operatore).
+      security:
+        - BearerAuth: []
+      responses:
+        "204":
+          description: Richiesta eliminata
+  /ingombranti/{idRichiesta}/accetta:
+    patch:
+      summary: Accettazione richiesta da parte dell'operatore
+      description: >-
+        Imposta lo stato della richiesta a "Accettata" e crea una notifica per l'utente.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Richiesta aggiornata a Accettata
+  /ingombranti/{idRichiesta}/proponiModifica:
+    patch:
+      summary: Proposta modifica richiesta
+      description: >-
+        Permette all'operatore di proporre una modifica a data, fascia oraria o note della richiesta.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Richiesta aggiornata a Modifica_Proposta
+  /ingombranti/{idRichiesta}/accettaModifica:
+    patch:
+      summary: Accettazione modifica da parte dell'utente
+      description: >-
+        L'utente accetta la modifica proposta dall'operatore; lo stato torna ad "Accettata".
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Modifica accettata
+  /ingombranti/{idRichiesta}/completa:
+    patch:
+      summary: Completamento richiesta
+      description: >-
+        L'operatore imposta la richiesta come "Completata" e genera la notifica di conferma.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Richiesta completata
+  /ingombranti/{idRichiesta}/annulla:
+    patch:
+      summary: Annullamento richiesta
+      description: >-
+        Utente o operatore annullano la richiesta; lo stato diventa "Annullata".
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Richiesta annullata
+  /notifiche:
+    get:
+      summary: Lista notifiche utente
+      description: >-
+        Restituisce tutte le notifiche dell'utente autenticato, con filtri su stato di lettura e tipo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: letta
+          schema:
+            type: boolean
+          description: Filtra notifiche lette/non lette
+        - in: query
+          name: tipo
+          schema:
+            type: string
+          description: Tipo di notifica (es. "Aggiornamento_Segnalazione", "Avviso_Ingombranti")
+      responses:
+        "200":
+          description: Lista notifiche
+  /notifiche/{idNotifica}:
+    get:
+      summary: Dettaglio notifica
+      description: Restituisce tutte le informazioni su una specifica notifica dell'utente autenticato.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Dati notifica
+        "403":
+          description: Accesso non autorizzato
+        "404":
+          description: Notifica non trovata
+  /notifiche/{idNotifica}/letta:
+    patch:
+      summary: Segna notifica come letta
+      description: Imposta la notifica come letta (letta: true).
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Notifica aggiornata
+  /area:
+    get:
+      summary: Lista quartieri
+      description: >-
+        Restituisce tutti i quartieri, con confini, stile mappa e link
+        al calendario della raccolta.
+      responses:
+        "200":
+          description: Lista quartieri
+  /quartieri/{idQuartiere}:
+    get:
+      summary: Dettaglio quartiere
+      description: >-
+        Restituisce le informazioni dettagliate di un quartiere e il link
+        al relativo calendario.
+      responses:
+        "200":
+          description: Dati quartiere
+        "404":
+          description: Quartiere non trovato
+  /quartieri/{idQuartiere}/calendario:
+    get:
+      summary: Calendario di raccolta del quartiere
+      description: Restituisce il link al calendario associato al quartiere indicato.
+      responses:
+        "200":
+          description: Link calendario
+        "404":
+          description: Calendario non trovato
+  /strade:
+    get:
+      summary: Lista strade
+      description: Restituisce l'elenco delle strade disponibili nel sistema.
+      responses:
+        "200":
+          description: Lista strade
+  /strade/ricerca:
+    get:
+      summary: Ricerca testuale di strade
+      description: Restituisce fino a 5 strade che matchano la stringa di ricerca fornita.
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Testo da ricercare nel nome della strada
+      responses:
+        "200":
+          description: Lista risultati ricerca
+  /strade/{idStrada}:
+    get:
+      summary: Dettaglio strada
+      description: Restituisce le informazioni della strada indicata dall'ID.
+      responses:
+        "200":
+          description: Dati strada
+        "404":
+          description: Strada non trovata
+  /strade/{idStrada}/infoCalendario:
+    get:
+      summary: Info calendario per strada
+      description: >-
+        Restituisce dati su strada, quartiere associato e link al calendario
+        della raccolta per quella zona.
+      responses:
+        "200":
+          description: Info calendario per strada
+        "404":
+          description: Strada non trovata
